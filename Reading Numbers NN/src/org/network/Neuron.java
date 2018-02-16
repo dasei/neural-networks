@@ -38,6 +38,11 @@ public class Neuron {
 
 	public double generateOutput(double[] inputs) {
 
+		return MathFunctions.sigmoid(generateSum(inputs));
+
+	}
+
+	public double generateSum(double[] inputs) {
 		if (inputs.length != weights.length)
 			return Double.NEGATIVE_INFINITY;
 
@@ -45,8 +50,16 @@ public class Neuron {
 		for (int i = 0; i < inputs.length; i++)
 			sum += inputs[i] * weights[i];
 
-		return sigmoid(sum - bias);
-		// return sum - bias;
+		return sum - bias;
+	}
+
+	////////
+	//// Setters
+
+	public void setWeights(double[] weights) {
+		if (this.weights.length == weights.length) {
+			this.weights = weights.clone();
+		}
 	}
 
 	public void setWeight(int weightIndex, double newValue) {
@@ -57,17 +70,14 @@ public class Neuron {
 		this.bias = newValue;
 	}
 
+	////////
+	//// Getters
+
 	public double[] getWeights() {
 		return this.weights;
 	}
 
 	public double getBias() {
 		return this.bias;
-	}
-
-	//////
-
-	private double sigmoid(double t) {
-		return 1.0 / (1.0 + Math.exp(-t));
 	}
 }
