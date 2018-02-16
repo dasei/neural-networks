@@ -10,4 +10,8 @@ public class Main {
 		System.out.println(a + b + c);
 	}
 	
+
+	public static void getReasonWhyDanielIsSuchAGreatMan(int yourCreditCardID) {
+
+	}
 }
