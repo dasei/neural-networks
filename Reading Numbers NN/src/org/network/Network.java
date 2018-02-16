@@ -113,8 +113,8 @@ public class Network {
 		return newNetwork;
 	}
 
-	////////////
-	////////// export Network to file
+	////////
+	//// export Network to file
 	////////
 
 	public static void exportToFile(Network network, String exportFilePath) {
@@ -198,9 +198,9 @@ public class Network {
 		neurons[hiddenLayer][neuron].setWeight(weightIndex, newValue);
 	}
 
-	//////
 	////////
-	//////
+	//// Backpropagation
+	////////
 
 	private void backpropagate(double[] expectedOutputs, double[] inputValues) {
 
@@ -265,7 +265,7 @@ public class Network {
 				for (int w = 0; w < newWeights.length; w++) {
 					newWeights[w] = newWeights[w] + gradient[w];
 				}
-				neurons[layer][n].setWeights(newWeights);
+				// neurons[layer][n].setWeights(newWeights);
 
 				// generate new bias for neuron (-1 from derivative and gradient
 				// should eliminate)
@@ -284,7 +284,7 @@ public class Network {
 		feedForward(inputValues);
 
 		// double errorSum = 0;
-		// for(int i = 0; i < expectedOutputs.length; i++) {
+		// for (int i = 0; i < expectedOutputs.length; i++) {
 		// errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
 		// expectedOutputs[i], 2);
 		// }
@@ -293,13 +293,13 @@ public class Network {
 		backpropagate(expectedOutputs, inputValues);
 
 		// feedForward(inputValues);
-
+		//
 		// errorSum = 0;
 		// for(int i = 0; i < expectedOutputs.length; i++) {
 		// errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
 		// expectedOutputs[i], 2);
 		// }
-
+		//
 		// System.out.println(errorSum);
 	}
 
