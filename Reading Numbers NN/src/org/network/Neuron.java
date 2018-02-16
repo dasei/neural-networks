@@ -14,14 +14,21 @@ public class Neuron {
 	private int layerHidden;
 
 	public Neuron(int layerHidden, Network network) {
+		this(layerHidden, network, true);
+	}
+
+	public Neuron(int layerHidden, Network network, boolean randomizeValues) {
 		this.layerHidden = layerHidden;
 
 		// weights
 		weights = new double[network.getAmountOfNeuronsInHiddenLayer(this.layerHidden - 1)];
-		randomizeWeights(WEIGHT_DEFAULT_MIN, WEIGHT_DEFAULT_MAX);
 
-		// bias
-		bias = (Math.random() * (BIAS_DEFAULT_MAX - BIAS_DEFAULT_MIN)) + BIAS_DEFAULT_MIN;
+		if (randomizeValues) {
+			randomizeWeights(WEIGHT_DEFAULT_MIN, WEIGHT_DEFAULT_MAX);
+
+			// bias
+			bias = (Math.random() * (BIAS_DEFAULT_MAX - BIAS_DEFAULT_MIN)) + BIAS_DEFAULT_MIN;
+		}
 	}
 
 	private void randomizeWeights(double min, double max) {
@@ -40,6 +47,22 @@ public class Neuron {
 
 		return sigmoid(sum - bias);
 		// return sum - bias;
+	}
+
+	public void setWeight(int weightIndex, double newValue) {
+		this.weights[weightIndex] = newValue;
+	}
+
+	public void setBias(double newValue) {
+		this.bias = newValue;
+	}
+
+	public double[] getWeights() {
+		return this.weights;
+	}
+
+	public double getBias() {
+		return this.bias;
 	}
 
 	//////

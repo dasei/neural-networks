@@ -1,11 +1,21 @@
 package org.network;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 public class Network {
 
 	private int inputNeuronsAmount;
 
 	private Neuron[][] neurons;
 	private double[][] neuronValues;
+
+	//////
+	//////// generate Network randomly
+	//////
 
 	/**
 	 * 
@@ -15,6 +25,14 @@ public class Network {
 	 *            e.g. {9, 5, 5, 3}
 	 */
 	public Network(int[] layout) {
+		this(layout, true);
+	}
+
+	//////
+	//////// generate Network randomly OR without value initialization
+	//////
+
+	private Network(int[] layout, boolean randomizeValues) {
 		inputNeuronsAmount = layout[0];
 
 		// create neuron matrix
@@ -25,7 +43,7 @@ public class Network {
 
 			// create neurons
 			for (int n = 0; n < neurons[layer - 1].length; n++)
-				neurons[layer - 1][n] = new Neuron(layer - 1, this);
+				neurons[layer - 1][n] = new Neuron(layer - 1, this, randomizeValues);
 		}
 
 		// create neuronValues matrix for caching output values of the neurons
@@ -33,8 +51,109 @@ public class Network {
 		for (int layer = 0; layer < neurons.length; layer++) {
 			neuronValues[layer] = new double[neurons[layer].length];
 		}
+	}
 
-		System.out.println("");
+	////////////
+	////////// generate Network from file
+	////////
+
+	public static Network loadNetworkFromFile(String inputFilePath) {
+
+		Network newNetwork = null;
+
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(new File(inputFilePath)));
+
+			////////
+			//// read network layout
+			String[] networkLayout = reader.readLine().split(":")[1].split(",");
+			int[] networkLayoutInt = new int[networkLayout.length];
+			for (int layer = 0; layer < networkLayout.length; layer++) {
+				networkLayoutInt[layer] = Integer.parseInt(networkLayout[layer]);
+			}
+
+			////////
+			//// init network with given layout
+			newNetwork = new Network(networkLayoutInt, false);
+
+			////////
+			//// assign values
+
+			// loop through layers
+			for (int layer = 1; layer < networkLayoutInt.length; layer++) {
+
+				// loop through neurons
+				for (int n = 0; n < networkLayoutInt[layer]; n++) {
+
+					// loop through && assign weights
+					for (int w = 0; w < networkLayoutInt[layer - 1]; w++) {
+						newNetwork.setWeightOfNeuron(layer - 1, n, w, Double.parseDouble(reader.readLine()));
+					}
+
+					// assign bias
+					newNetwork.setBiasOfNeuron(layer - 1, n, Double.parseDouble(reader.readLine()));
+				}
+			}
+
+			reader.close();
+
+		} catch (Exception e) {
+			System.out.println("failed to load NN from file: '" + inputFilePath + "'");
+			e.printStackTrace();
+		}
+
+		return newNetwork;
+	}
+
+	////////////
+	////////// export Network to file
+	////////
+
+	public static void exportToFile(Network network, String exportFilePath) {
+
+		PrintWriter writer;
+
+		try {
+			writer = new PrintWriter(new FileWriter(new File(exportFilePath)));
+
+			////////
+			//// print layout of this Network
+			String layoutStr = "layout:" + network.inputNeuronsAmount + ",";
+			for (int hiddenLayer = 0; hiddenLayer < network.neurons.length; hiddenLayer++) {
+				layoutStr += network.neurons[hiddenLayer].length
+						+ (hiddenLayer == network.neurons.length - 1 ? "" : ",");
+			}
+			writer.println(layoutStr);
+
+			////////
+			//// print values of all weights && biases
+
+			// loop though layers
+			for (int hiddenLayer = 0; hiddenLayer < network.neurons.length; hiddenLayer++) {
+
+				// loop through neurons
+				for (int n = 0; n < network.neurons[hiddenLayer].length; n++) {
+
+					// loop through weights
+					for (int weight = 0; weight < network.getAmountOfNeuronsInHiddenLayer(hiddenLayer - 1); weight++) {
+
+						// print weight
+						writer.println(network.neurons[hiddenLayer][n].getWeights()[weight]);
+					}
+
+					// print bias
+					writer.println(network.neurons[hiddenLayer][n].getBias());
+				}
+
+			}
+
+			writer.close();
+
+		} catch (Exception e) {
+			System.out.println("failed to export nn to file: '" + exportFilePath + "'");
+			e.printStackTrace();
+		}
+
 	}
 
 	public int getAmountOfNeuronsInHiddenLayer(int hiddenLayer) {
@@ -65,21 +184,11 @@ public class Network {
 		return neuronValues[neuronValues.length - 1];
 	}
 
-	//////
-	////////
-	//////
-
-	//@formatter:off
-	public void backpropagate(double[] expectedOutputs) {
-		
-		//loope durch alle Neuronen
-			
-			//speichere (((  d cost / d outputDesNeurons  )))
-		
-			//loope durch seine weights
-				
-				
-		
+	public void setWeightOfNeuron(int hiddenLayer, int neuron, int weightIndex, double newValue) {
+		neurons[hiddenLayer][neuron].setWeight(weightIndex, newValue);
 	}
-	//@formatter:on
+
+	public void setBiasOfNeuron(int hiddenLayer, int neuron, double newValue) {
+		neurons[hiddenLayer][neuron].setBias(newValue);
+	}
 }
