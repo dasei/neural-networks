@@ -6,10 +6,6 @@ public class Main {
 		System.out.println("funzt?!!");
 	}
 	
-	public void virusStarten(int a, int b, int c) {
-		System.out.println(a + b + c);
-	}
-	
 
 	public static void getReasonWhyDanielIsSuchAGreatMan(int yourCreditCardID) {
 
