@@ -382,7 +382,13 @@ public class Network {
 			String outString = Arrays.toString(output);
 			String expectedOutString = Arrays.toString(expectedOutputs[i]);
 
-			System.out.println("Expected: " + expectedOutString + " Out: " + outString);
+			double errSum = 0;
+			for(int out = 0; out < output.length; out++) {
+				errSum += Math.pow(output[out] - expectedOutputs[i][out], 2);
+			}
+			
+			System.out.println("Expected: " + expectedOutString + " Out: " + outString + " Error: " + errSum);
+			
 
 			boolean isRight = true;
 			for (int outNeuron = 0; outNeuron < output.length; outNeuron++) {
