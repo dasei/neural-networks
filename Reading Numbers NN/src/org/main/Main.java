@@ -7,7 +7,14 @@ import org.network.Network;
 public class Main {
 
 	public static void main(String[] args) {
-		test2();
+		test1();
+//		Network net = new Network(new int[] {2, 25, 12, 1});
+//		
+//		long time = System.currentTimeMillis();
+//		for(int i = 0; i < 10; i++) {
+//			net.train(new double[] {1,  3}, new double[] {0.52});
+//		}
+//		System.out.println(System.currentTimeMillis() - time);
 	}
 
 	public static void test2() {
@@ -42,7 +49,7 @@ public class Main {
 	}
 
 	public static void test1() {
-		Network net = new Network(new int[] { 10, 6 });
+		Network net = new Network(new int[] { 10, 7, 7, 6 });
 
 		// System.out.println("erg: " + net.feedForward(new double[] { })[0]);
 
@@ -53,7 +60,7 @@ public class Main {
 		char[] str;
 		double[] inputs = new double[10];
 		double[] outputs = new double[6];
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 1000000000; i++) {
 			d1 = (int) (Math.random() * 32);
 			d2 = (int) (Math.random() * 32);
 
@@ -73,14 +80,9 @@ public class Main {
 			net.train(inputs, outputs);
 		}
 		// System.out.println((System.currentTimeMillis() - time));
-		//
-		Network.exportToFile(net, "H:/addiererBinär.txt");
-		// // + " milliseconds used for 100000 lerning iterations through " + (2 + 20 +
-		// 17
-		// // + 1) + " Neurons");
-		// // System.out.println("with some SWEET backpropagation");
-		// // System.out.println();
-		// // System.out.println("@Copyright Marco && Daniel");
+		
+//		Network.exportToFile(net, "C:/addiererBinär.txt");
+
 	}
 
 }

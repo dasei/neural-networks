@@ -13,6 +13,8 @@ public class Network {
 	private Neuron[][] neurons;
 	private double[][] neuronValues;
 	private double[][] neuronDerivativeValues;
+	private double[][] neuronSumValues;
+	
 
 	//////
 	//////// generate Network randomly
@@ -58,6 +60,12 @@ public class Network {
 		neuronDerivativeValues = new double[neurons.length][];
 		for (int layer = 0; layer < neurons.length; layer++) {
 			neuronDerivativeValues[layer] = new double[neurons[layer].length];
+		}
+		
+		// create neuronSumValues for memoizing the z-sum values
+		neuronSumValues = new double[neurons.length][];
+		for (int layer = 0; layer < neurons.length; layer++) {
+			neuronSumValues[layer] = new double[neurons[layer].length];
 		}
 	}
 
@@ -183,10 +191,12 @@ public class Network {
 			if (layer == 0) {
 				for (int n = 0; n < neurons[layer].length; n++) {
 					neuronValues[layer][n] = neurons[layer][n].generateOutput(inputValues);
+					neuronSumValues[layer][n] = neurons[layer][n].generateSum(inputValues);
 				}
 			} else {
 				for (int n = 0; n < neurons[layer].length; n++) {
 					neuronValues[layer][n] = neurons[layer][n].generateOutput(neuronValues[layer - 1]);
+					neuronSumValues[layer][n] = neurons[layer][n].generateSum(neuronValues[layer - 1]);
 				}
 			}
 		}
@@ -204,7 +214,7 @@ public class Network {
 
 	private void backpropagate(double[] expectedOutputs, double[] inputValues) {
 
-		// loope backwards through all neurons and memoize their derivatives
+		// loop backwards through all neurons and memoize their derivatives
 		for (int layer = neurons.length - 1; layer >= 0; layer--) {
 			for (int n = 0; n < neurons[layer].length; n++) {
 
@@ -226,7 +236,7 @@ public class Network {
 						// get the derivative of sigmoid over nextLayerNeurons
 						// sum z
 						double dSig = MathFunctions.derivativeSigmoid(
-								neurons[layer + 1][nextLayerNeuron].generateSum(neuronValues[layer]));
+								neuronSumValues[layer + 1][nextLayerNeuron]);
 						// add to the sum
 						sum += connectingWeight * dSig * neuronDerivativeValues[layer + 1][nextLayerNeuron];
 					}
@@ -234,13 +244,13 @@ public class Network {
 				}
 
 				// update its weights and its bias
-				double dSig;
 				// Get the derivative of sigmoid over the sum z of this neuron
-				if (layer != 0) {
-					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer - 1]));
-				} else {
-					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(inputValues));
-				}
+				double dSig = MathFunctions.derivativeSigmoid(neuronSumValues[layer][n]);
+//				if (layer != 0) {
+//					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer - 1]));
+//				} else {
+//					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(inputValues));
+//				}
 
 				// generate gradient for gradient descent
 				double[] gradient = new double[neurons[layer][n].getWeights().length];
@@ -283,24 +293,25 @@ public class Network {
 	public void train(double[] inputValues, double[] expectedOutputs) {
 		feedForward(inputValues);
 
-		// double errorSum = 0;
-		// for (int i = 0; i < expectedOutputs.length; i++) {
-		// errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
-		// expectedOutputs[i], 2);
-		// }
-		// System.out.println(errorSum);
+		 double errorSum = 0;
+		 for (int i = 0; i < expectedOutputs.length; i++) {
+		 errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
+		 expectedOutputs[i], 2);
+		 }
+		 
+		 System.out.println(errorSum);
 
 		backpropagate(expectedOutputs, inputValues);
 
-		// feedForward(inputValues);
-		//
-		// errorSum = 0;
-		// for(int i = 0; i < expectedOutputs.length; i++) {
-		// errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
-		// expectedOutputs[i], 2);
-		// }
-		//
-		// System.out.println(errorSum);
+		 feedForward(inputValues);
+		
+		 errorSum = 0;
+		 for(int i = 0; i < expectedOutputs.length; i++) {
+		 errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
+		 expectedOutputs[i], 2);
+		 }
+		
+		 System.out.println(errorSum);
 	}
 
 }
