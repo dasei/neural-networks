@@ -7,6 +7,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+import org.activationFunctions.ActivationFunction;
+import org.activationFunctions.Sigmoid;
+
 public class Network {
 
 	private int inputNeuronsAmount;
@@ -15,14 +18,15 @@ public class Network {
 	private double[][] neuronValues;
 	private double[][] neuronDerivativeValues;
 	private double[][] neuronSumValues;
-	private int activationMode;
+	// private int activationMode;
 	private double learningRate;
-	
-	public static final int ACTIVATION_SIGMOID = 0;
-	public static final int ACTIVATION_RELU = 1;
-	public static final int ACTIVATION_LEAKY_RELU = 2;
+
+	private ActivationFunction activationFunction;
+
+	// public static final int ACTIVATION_SIGMOID = 0;
+	// public static final int ACTIVATION_RELU = 1;
+	// public static final int ACTIVATION_LEAKY_RELU = 2;
 	public static final double DEFAULT_LEARNING_RATE = 0.1;
-	
 
 	//////
 	//////// generate Network randomly
@@ -37,28 +41,28 @@ public class Network {
 	 */
 
 	public Network(int[] layout) {
-		this(layout, true, ACTIVATION_SIGMOID, DEFAULT_LEARNING_RATE);
+		this(layout, true, new Sigmoid(), DEFAULT_LEARNING_RATE);
 	}
-	
-	public Network(int[] layout, int activationMode) {
-		this(layout, true, activationMode, DEFAULT_LEARNING_RATE);
+
+	public Network(int[] layout, ActivationFunction activationFunction) {
+		this(layout, true, activationFunction, DEFAULT_LEARNING_RATE);
 	}
-	
+
 	public Network(int[] layout, boolean randomizeValues) {
-		this(layout, randomizeValues, ACTIVATION_SIGMOID, DEFAULT_LEARNING_RATE);
+		this(layout, randomizeValues, new Sigmoid(), DEFAULT_LEARNING_RATE);
 	}
-	
-	public Network(int[] layout, int activationMode, double learningRate) {
-		this(layout, true, activationMode, learningRate);
+
+	public Network(int[] layout, ActivationFunction activationFunction, double learningRate) {
+		this(layout, true, activationFunction, learningRate);
 	}
 
 	//////
 	//////// generate Network randomly OR without value initialization
 	//////
 
-	private Network(int[] layout, boolean randomizeValues, int activationMode, double learningRate) {
+	private Network(int[] layout, boolean randomizeValues, ActivationFunction activationFunction, double learningRate) {
 		inputNeuronsAmount = layout[0];
-		this.activationMode = activationMode;
+		this.activationFunction = activationFunction;
 		this.learningRate = learningRate;
 
 		// create neuron matrix
@@ -69,7 +73,7 @@ public class Network {
 
 			// create neurons
 			for (int n = 0; n < neurons[layer - 1].length; n++)
-				neurons[layer - 1][n] = new Neuron(layer - 1, this, randomizeValues, activationMode);
+				neurons[layer - 1][n] = new Neuron(layer - 1, this, randomizeValues, activationFunction);
 		}
 
 		// create neuronValues matrix for caching output values of the neurons
@@ -83,7 +87,7 @@ public class Network {
 		for (int layer = 0; layer < neurons.length; layer++) {
 			neuronDerivativeValues[layer] = new double[neurons[layer].length];
 		}
-		
+
 		// create neuronSumValues for memoizing the z-sum values
 		neuronSumValues = new double[neurons.length][];
 		for (int layer = 0; layer < neurons.length; layer++) {
@@ -204,21 +208,21 @@ public class Network {
 		else
 			return inputNeuronsAmount;
 	}
-	
+
 	public void setLearningRate(double learningRate) {
 		this.learningRate = learningRate;
 	}
-	
-	//Sets given activationMode to ALL Neurons
-	public void setActivationMode(int activationMode) {
-		this.activationMode = activationMode;
-		for(Neuron[] layer : neurons) {
-			for(Neuron neuron : layer) {
-				neuron.setActivationMode(activationMode);
+
+	// Sets given activationMode to ALL Neurons
+	public void setActivationFunction(ActivationFunction activationFunction) {
+		this.activationFunction = activationFunction;
+		for (Neuron[] layer : neurons) {
+			for (Neuron neuron : layer) {
+				neuron.setActivationFunction(activationFunction);
 			}
 		}
 	}
-	
+
 	public double getLearningRate() {
 		return this.learningRate;
 	}
@@ -276,21 +280,23 @@ public class Network {
 						// get the derivative of the activation over nextLayerNeurons
 						// sum z
 						double dActivation;
-						//Get the right derivative function according to activationMode
-						switch (activationMode) {
-						case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
-								neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
-								neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
-								neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						default: dActivation = MathFunctions.derivativeSigmoid(
-								 neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						}
-						
+						// Get the right derivative function according to activationMode
+
+						dActivation = activationFunction.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
+
+						// switch (activationMode) {
+						// case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						// case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						// case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
+						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						// default: dActivation = MathFunctions.derivativeSigmoid(
+						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						// }
+
 						// add to the sum
-						sum += connectingWeight * dActivation
-								* neuronDerivativeValues[layer + 1][nextLayerNeuron];
+						sum += connectingWeight * dActivation * neuronDerivativeValues[layer + 1][nextLayerNeuron];
 					}
 					neuronDerivativeValues[layer][n] = sum;
 				}
@@ -298,24 +304,28 @@ public class Network {
 				// update its weights and its bias
 				// Get the derivative of activation over the sum z of this neuron
 				double dActivation;
-				
-				//Get the right derivative function according to activationMode
-				switch (activationMode) {
-				case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
-						neuronSumValues[layer][n]); break;
-				case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
-						neuronSumValues[layer][n]); break;
-				case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
-						neuronSumValues[layer][n]); break;
-				default: dActivation = MathFunctions.derivativeSigmoid(
-						 neuronSumValues[layer][n]); break;
-				}
-				
-//				if (layer != 0) {
-//					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer - 1]));
-//				} else {
-//					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(inputValues));
-//				}
+
+				// Get the right derivative function according to activationMode
+				dActivation = activationFunction.derivative(neuronSumValues[layer][n]);
+				// switch (activationMode) {
+				// case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+				// neuronSumValues[layer][n]); break;
+				// case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+				// neuronSumValues[layer][n]); break;
+				// case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
+				// neuronSumValues[layer][n]); break;
+				// default: dActivation = MathFunctions.derivativeSigmoid(
+				// neuronSumValues[layer][n]); break;
+				// }
+
+				// if (layer != 0) {
+				// dSig =
+				// MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer
+				// - 1]));
+				// } else {
+				// dSig =
+				// MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(inputValues));
+				// }
 
 				// generate gradient for gradient descent
 				double[] gradient = new double[neurons[layer][n].getWeights().length];
@@ -331,8 +341,8 @@ public class Network {
 						previousValue = inputValues[weight];
 					}
 
-					gradient[weight] = -1 * previousValue * dActivation
-							* neuronDerivativeValues[layer][n] * learningRate;
+					gradient[weight] = -1 * previousValue * dActivation * neuronDerivativeValues[layer][n]
+							* learningRate;
 
 				}
 
@@ -355,40 +365,40 @@ public class Network {
 	public void setBiasOfNeuron(int hiddenLayer, int neuron, double newValue) {
 		neurons[hiddenLayer][neuron].setBias(newValue);
 	}
-	
-	//returns output before training
+
+	// returns output before training
 	public double[] train(double[] inputValues, double[] expectedOutputs) {
 		double[] output = feedForward(inputValues);
 		backpropagate(expectedOutputs, inputValues);
 		return output;
 	}
-	
+
 	public void trainingSession(double[][] inputValues, double[][] expectedOutputs) {
 		int iterations = inputValues.length;
 		int fitnessSum = 0;
-		
-		for(int i = 0; i < iterations; i++) {
+
+		for (int i = 0; i < iterations; i++) {
 			double[] output = train(inputValues[i], expectedOutputs[i]);
 			String outString = Arrays.toString(output);
 			String expectedOutString = Arrays.toString(expectedOutputs[i]);
-			
+
 			System.out.println("Expected: " + expectedOutString + " Out: " + outString);
-			
+
 			boolean isRight = true;
-			for(int outNeuron = 0; outNeuron < output.length; outNeuron++) {
-				if(!(Math.round(output[outNeuron]) == expectedOutputs[i][outNeuron])) {
+			for (int outNeuron = 0; outNeuron < output.length; outNeuron++) {
+				if (!(Math.round(output[outNeuron]) == expectedOutputs[i][outNeuron])) {
 					isRight = false;
 					System.out.println("Fehler in Neuron: " + outNeuron);
 					break;
 				}
 			}
-			
-			if(isRight) {
+
+			if (isRight) {
 				fitnessSum++;
 			}
 		}
-		
-		System.out.println("Fitness: " + ((double)fitnessSum/iterations) * 100 + "%");
+
+		System.out.println("Fitness: " + ((double) fitnessSum / iterations) * 100 + "%");
 	}
 
 }

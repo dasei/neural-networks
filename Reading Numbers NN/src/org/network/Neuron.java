@@ -1,5 +1,8 @@
 package org.network;
 
+import org.activationFunctions.ActivationFunction;
+import org.activationFunctions.Sigmoid;
+
 public class Neuron {
 
 	public static final double WEIGHT_DEFAULT_MIN = -5;
@@ -11,16 +14,16 @@ public class Neuron {
 	private double bias;
 	private double[] weights;
 	private int layerHidden;
-	
-	private int activationMode;
+
+	private ActivationFunction activationFunction;
 
 	public Neuron(int layerHidden, Network network) {
-		this(layerHidden, network, true, Network.ACTIVATION_SIGMOID);
+		this(layerHidden, network, true, new Sigmoid());
 	}
 
-	public Neuron(int layerHidden, Network network, boolean randomizeValues, int activationMode) {
+	public Neuron(int layerHidden, Network network, boolean randomizeValues, ActivationFunction activationFunction) {
 		this.layerHidden = layerHidden;
-		this.activationMode = activationMode;
+		this.activationFunction = activationFunction;
 		// weights
 		weights = new double[network.getAmountOfNeuronsInHiddenLayer(this.layerHidden - 1)];
 
@@ -38,13 +41,16 @@ public class Neuron {
 	}
 
 	public double generateOutput(double[] inputs) {
-		
-		switch(activationMode) {
-		case Network.ACTIVATION_SIGMOID: return MathFunctions.sigmoid(generateSum(inputs));
-		case Network.ACTIVATION_RELU: return MathFunctions.relu(generateSum(inputs));
-		case Network.ACTIVATION_LEAKY_RELU: return MathFunctions.leakyRelu(generateSum(inputs));
-		default: return MathFunctions.sigmoid(generateSum(inputs));
-		}
+
+		return activationFunction.activate(generateSum(inputs));
+		// switch(activationMode) {
+		// case Network.ACTIVATION_SIGMOID: return
+		// MathFunctions.sigmoid(generateSum(inputs));
+		// case Network.ACTIVATION_RELU: return MathFunctions.relu(generateSum(inputs));
+		// case Network.ACTIVATION_LEAKY_RELU: return
+		// MathFunctions.leakyRelu(generateSum(inputs));
+		// default: return MathFunctions.sigmoid(generateSum(inputs));
+		// }
 
 	}
 
@@ -75,9 +81,9 @@ public class Neuron {
 	public void setBias(double newValue) {
 		this.bias = newValue;
 	}
-	
-	public void setActivationMode(int activationMode) {
-		this.activationMode = activationMode;
+
+	public void setActivationFunction(ActivationFunction activationFunction) {
+		this.activationFunction = activationFunction;
 	}
 
 	////////
