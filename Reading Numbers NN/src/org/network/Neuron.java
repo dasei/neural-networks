@@ -75,6 +75,10 @@ public class Neuron {
 	public void setBias(double newValue) {
 		this.bias = newValue;
 	}
+	
+	public void setActivationMode(int activationMode) {
+		this.activationMode = activationMode;
+	}
 
 	////////
 	//// Getters

@@ -6,6 +6,7 @@ import org.network.Network;
 public class Main {
 
 	public static void main(String[] args) {
+		test1();
 		test2();
 //		Network net = new Network(new int[] {2, 2, 1}, Network.ACTIVATION_LEAKY_RELU);
 //		
@@ -17,10 +18,12 @@ public class Main {
 	}
 
 	public static void test2() {
-		Network net = new Network(new int[] { 2, 5, 5, 1 }, Network.ACTIVATION_LEAKY_RELU, 0.000001);
+		Network net = Network.loadNetworkFromFile("addierer.txt");
+		net.setLearningRate(0.000001);
+		net.setActivationMode(Network.ACTIVATION_LEAKY_RELU);
 
 		int d1, d2;
-		int iterations = 10000000;
+		int iterations = 100;
 		double[][] inputs = new double[iterations][2];
 		double[][] outputs = new double[iterations][1];
 		
@@ -42,7 +45,7 @@ public class Main {
 		int d1, d2;
 		double[] inputs = new double[2];
 		double[] outputs = new double[1];
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 5000000; i++) {
 			d1 = (int) (Math.random() * 8);
 			d2 = (int) (Math.random() * 8);
 			inputs = new double[] {d1, d2};

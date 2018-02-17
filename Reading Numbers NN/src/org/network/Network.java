@@ -209,6 +209,16 @@ public class Network {
 		this.learningRate = learningRate;
 	}
 	
+	//Sets given activationMode to ALL Neurons
+	public void setActivationMode(int activationMode) {
+		this.activationMode = activationMode;
+		for(Neuron[] layer : neurons) {
+			for(Neuron neuron : layer) {
+				neuron.setActivationMode(activationMode);
+			}
+		}
+	}
+	
 	public double getLearningRate() {
 		return this.learningRate;
 	}
@@ -378,7 +388,7 @@ public class Network {
 			}
 		}
 		
-		System.out.println("Fitness: " + (fitnessSum/iterations));
+		System.out.println("Fitness: " + ((double)fitnessSum/iterations) * 100 + "%");
 	}
 
 }
