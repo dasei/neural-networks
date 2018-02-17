@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class Network {
 
@@ -15,9 +16,12 @@ public class Network {
 	private double[][] neuronDerivativeValues;
 	private double[][] neuronSumValues;
 	private int activationMode;
+	private double learningRate;
 	
 	public static final int ACTIVATION_SIGMOID = 0;
 	public static final int ACTIVATION_RELU = 1;
+	public static final int ACTIVATION_LEAKY_RELU = 2;
+	public static final double DEFAULT_LEARNING_RATE = 0.1;
 	
 
 	//////
@@ -33,24 +37,29 @@ public class Network {
 	 */
 
 	public Network(int[] layout) {
-		this(layout, true, ACTIVATION_SIGMOID);
+		this(layout, true, ACTIVATION_SIGMOID, DEFAULT_LEARNING_RATE);
 	}
 	
 	public Network(int[] layout, int activationMode) {
-		this(layout, true, activationMode);
+		this(layout, true, activationMode, DEFAULT_LEARNING_RATE);
 	}
 	
 	public Network(int[] layout, boolean randomizeValues) {
-		this(layout, randomizeValues, ACTIVATION_SIGMOID);
+		this(layout, randomizeValues, ACTIVATION_SIGMOID, DEFAULT_LEARNING_RATE);
+	}
+	
+	public Network(int[] layout, int activationMode, double learningRate) {
+		this(layout, true, activationMode, learningRate);
 	}
 
 	//////
 	//////// generate Network randomly OR without value initialization
 	//////
 
-	private Network(int[] layout, boolean randomizeValues, int activationMode) {
+	private Network(int[] layout, boolean randomizeValues, int activationMode, double learningRate) {
 		inputNeuronsAmount = layout[0];
-		this.activationMode = activationMode; 
+		this.activationMode = activationMode;
+		this.learningRate = learningRate;
 
 		// create neuron matrix
 		neurons = new Neuron[layout.length - 1][];
@@ -195,6 +204,14 @@ public class Network {
 		else
 			return inputNeuronsAmount;
 	}
+	
+	public void setLearningRate(double learningRate) {
+		this.learningRate = learningRate;
+	}
+	
+	public double getLearningRate() {
+		return this.learningRate;
+	}
 
 	// Generates network-output and stores viable information for
 	// backpropagation
@@ -255,6 +272,8 @@ public class Network {
 								neuronSumValues[layer + 1][nextLayerNeuron]); break;
 						case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
 								neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
+								neuronSumValues[layer + 1][nextLayerNeuron]); break;
 						default: dActivation = MathFunctions.derivativeSigmoid(
 								 neuronSumValues[layer + 1][nextLayerNeuron]); break;
 						}
@@ -275,6 +294,8 @@ public class Network {
 				case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
 						neuronSumValues[layer][n]); break;
 				case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+						neuronSumValues[layer][n]); break;
+				case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
 						neuronSumValues[layer][n]); break;
 				default: dActivation = MathFunctions.derivativeSigmoid(
 						 neuronSumValues[layer][n]); break;
@@ -301,7 +322,7 @@ public class Network {
 					}
 
 					gradient[weight] = -1 * previousValue * dActivation
-							* neuronDerivativeValues[layer][n];
+							* neuronDerivativeValues[layer][n] * learningRate;
 
 				}
 
@@ -314,7 +335,7 @@ public class Network {
 
 				// generate new bias for neuron (-1 from derivative and gradient
 				// should eliminate)
-				double biasCorrection = dActivation * neuronDerivativeValues[layer][n];
+				double biasCorrection = dActivation * neuronDerivativeValues[layer][n] * learningRate;
 				neurons[layer][n].setBias(neurons[layer][n].getBias() + biasCorrection);
 			}
 		}
@@ -324,29 +345,40 @@ public class Network {
 	public void setBiasOfNeuron(int hiddenLayer, int neuron, double newValue) {
 		neurons[hiddenLayer][neuron].setBias(newValue);
 	}
-
-	public void train(double[] inputValues, double[] expectedOutputs) {
-		feedForward(inputValues);
-
-		 double errorSum = 0;
-		 for (int i = 0; i < expectedOutputs.length; i++) {
-		 errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
-		 expectedOutputs[i], 2);
-		 }
-		 
-		 System.out.println(errorSum);
-
+	
+	//returns output before training
+	public double[] train(double[] inputValues, double[] expectedOutputs) {
+		double[] output = feedForward(inputValues);
 		backpropagate(expectedOutputs, inputValues);
-
-		 feedForward(inputValues);
+		return output;
+	}
+	
+	public void trainingSession(double[][] inputValues, double[][] expectedOutputs) {
+		int iterations = inputValues.length;
+		int fitnessSum = 0;
 		
-		 errorSum = 0;
-		 for(int i = 0; i < expectedOutputs.length; i++) {
-		 errorSum += Math.pow(neuronValues[neuronValues.length - 1][i] -
-		 expectedOutputs[i], 2);
-		 }
+		for(int i = 0; i < iterations; i++) {
+			double[] output = train(inputValues[i], expectedOutputs[i]);
+			String outString = Arrays.toString(output);
+			String expectedOutString = Arrays.toString(expectedOutputs[i]);
+			
+			System.out.println("Expected: " + expectedOutString + " Out: " + outString);
+			
+			boolean isRight = true;
+			for(int outNeuron = 0; outNeuron < output.length; outNeuron++) {
+				if(!(Math.round(output[outNeuron]) == expectedOutputs[i][outNeuron])) {
+					isRight = false;
+					System.out.println("Fehler in Neuron: " + outNeuron);
+					break;
+				}
+			}
+			
+			if(isRight) {
+				fitnessSum++;
+			}
+		}
 		
-		 System.out.println(errorSum);
+		System.out.println("Fitness: " + (fitnessSum/iterations));
 	}
 
 }

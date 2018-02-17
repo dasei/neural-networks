@@ -18,5 +18,17 @@ public class MathFunctions {
 		if(t > 0) return 1;
 		else return 0;
 	}
+	
+	public static double leakyRelu(double t) {
+		return Math.max(0.1*t, t);
+	}
+	
+	public static double derivativeLeakyRelu(double t) {
+		if(t > 0) {
+			return 1;
+		}
+		
+		return 0.1;
+	}
 
 }

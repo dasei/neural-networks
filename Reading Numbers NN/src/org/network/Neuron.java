@@ -40,8 +40,9 @@ public class Neuron {
 	public double generateOutput(double[] inputs) {
 		
 		switch(activationMode) {
-		case 0: return MathFunctions.sigmoid(generateSum(inputs));
-		case 1: return MathFunctions.relu(generateSum(inputs));
+		case Network.ACTIVATION_SIGMOID: return MathFunctions.sigmoid(generateSum(inputs));
+		case Network.ACTIVATION_RELU: return MathFunctions.relu(generateSum(inputs));
+		case Network.ACTIVATION_LEAKY_RELU: return MathFunctions.leakyRelu(generateSum(inputs));
 		default: return MathFunctions.sigmoid(generateSum(inputs));
 		}
 
