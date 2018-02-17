@@ -119,6 +119,10 @@ public class Network {
 			newNetwork = new Network(networkLayoutInt, false);
 
 			////////
+			//// read default lerning rate
+			newNetwork.learningRate = Double.parseDouble(reader.readLine().split(":")[1]);
+
+			////////
 			//// assign values
 
 			// loop through layers
@@ -126,6 +130,10 @@ public class Network {
 
 				// loop through neurons
 				for (int n = 0; n < networkLayoutInt[layer]; n++) {
+
+					// assign activation function
+					newNetwork.setActivationFunctionForNeuron(layer - 1, n, (ActivationFunction) (Class
+							.forName("org.activationFunctions." + reader.readLine()).getConstructor().newInstance()));
 
 					// loop through && assign weights
 					for (int w = 0; w < networkLayoutInt[layer - 1]; w++) {
@@ -168,6 +176,10 @@ public class Network {
 			writer.println(layoutStr);
 
 			////////
+			//// print default lerniing rate
+			writer.println("learning rate:" + network.learningRate);
+
+			////////
 			//// print values of all weights && biases
 
 			// loop though layers
@@ -175,6 +187,8 @@ public class Network {
 
 				// loop through neurons
 				for (int n = 0; n < network.neurons[hiddenLayer].length; n++) {
+
+					writer.println(network.neurons[hiddenLayer][n].getActivationFunction().getClass().getSimpleName());
 
 					// loop through weights
 					for (int weight = 0; weight < network.getAmountOfNeuronsInHiddenLayer(hiddenLayer - 1); weight++) {
@@ -399,6 +413,10 @@ public class Network {
 		}
 
 		System.out.println("Fitness: " + ((double) fitnessSum / iterations) * 100 + "%");
+	}
+
+	public void setActivationFunctionForNeuron(int hiddenLayer, int n, ActivationFunction f) {
+		neurons[hiddenLayer][n].setActivationFunction(f);
 	}
 
 }

@@ -29,15 +29,15 @@ public class Main {
 		double[][] outputs = new double[iterations][1];
 
 		for (int i = 0; i < iterations; i++) {
-			d1 = (int) (Math.random() * 32 - 16);
-			d2 = (int) (Math.random() * 32 - 16);
+			d1 = (int) (Math.random() * 8);
+			d2 = (int) (Math.random() * 8);
 			inputs[i] = new double[] { d1, d2 };
 			outputs[i] = new double[] { d1 + d2 };
 		}
 
 		net.trainingSession(inputs, outputs);
 
-		System.out.println(net.feedForward(new double[] { 2390, 23432 })[0]);
+		// System.out.println(net.feedForward(new double[] { 2390, 23432 })[0]);
 
 	}
 
@@ -49,8 +49,8 @@ public class Main {
 		double[] inputs = new double[2];
 		double[] outputs = new double[1];
 		for (int i = 0; i < 5000000; i++) {
-			d1 = (int) (Math.random() * 16 - 8);
-			d2 = (int) (Math.random() * 16 - 8);
+			d1 = (int) (Math.random() * 8);
+			d2 = (int) (Math.random() * 8);
 			inputs = new double[] { d1, d2 };
 			outputs = new double[] { d1 + d2 };
 			net.train(inputs, outputs);
