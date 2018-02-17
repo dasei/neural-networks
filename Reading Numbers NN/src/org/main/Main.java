@@ -31,8 +31,8 @@ public class Main {
 		double[][] outputs = new double[iterations][1];
 
 		for (int i = 0; i < iterations; i++) {
-			d1 = (int) (Math.random() * 16);
-			d2 = (int) (Math.random() * 16);
+			d1 = (int) (Math.random() * 8);
+			d2 = (int) (Math.random() * 8);
 			inputs[i] = new double[] { d1, d2 };
 			outputs[i] = new double[] { d1 + d2 };
 		}
@@ -42,7 +42,7 @@ public class Main {
 	}
 
 	public static void test1() {
-		Network net = new Network(new int[] { 2, 5, 5, 1 }, new Linear(), 0.000001);
+		Network net = new Network(new int[] { 2, 5, 5, 1 }, new Linear(), 0.0000001);
 
 		long time = System.currentTimeMillis();
 		int d1, d2;

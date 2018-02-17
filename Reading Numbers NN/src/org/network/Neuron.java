@@ -96,4 +96,8 @@ public class Neuron {
 	public double getBias() {
 		return this.bias;
 	}
+
+	public ActivationFunction getActivationFunction() {
+		return this.activationFunction;
+	}
 }
