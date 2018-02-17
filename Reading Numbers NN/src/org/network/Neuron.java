@@ -2,24 +2,25 @@ package org.network;
 
 public class Neuron {
 
-	public static final double WEIGHT_DEFAULT_MIN = -1;
-	public static final double WEIGHT_DEFAULT_MAX = 1;
+	public static final double WEIGHT_DEFAULT_MIN = -5;
+	public static final double WEIGHT_DEFAULT_MAX = 5;
 
-	public static final double BIAS_DEFAULT_MIN = -1;
-	public static final double BIAS_DEFAULT_MAX = 1;
+	public static final double BIAS_DEFAULT_MIN = -5;
+	public static final double BIAS_DEFAULT_MAX = 5;
 
 	private double bias;
 	private double[] weights;
-
 	private int layerHidden;
+	
+	private int activationMode;
 
 	public Neuron(int layerHidden, Network network) {
-		this(layerHidden, network, true);
+		this(layerHidden, network, true, Network.ACTIVATION_SIGMOID);
 	}
 
-	public Neuron(int layerHidden, Network network, boolean randomizeValues) {
+	public Neuron(int layerHidden, Network network, boolean randomizeValues, int activationMode) {
 		this.layerHidden = layerHidden;
-
+		this.activationMode = activationMode;
 		// weights
 		weights = new double[network.getAmountOfNeuronsInHiddenLayer(this.layerHidden - 1)];
 
@@ -37,8 +38,12 @@ public class Neuron {
 	}
 
 	public double generateOutput(double[] inputs) {
-
-		return MathFunctions.sigmoid(generateSum(inputs));
+		
+		switch(activationMode) {
+		case 0: return MathFunctions.sigmoid(generateSum(inputs));
+		case 1: return MathFunctions.relu(generateSum(inputs));
+		default: return MathFunctions.sigmoid(generateSum(inputs));
+		}
 
 	}
 

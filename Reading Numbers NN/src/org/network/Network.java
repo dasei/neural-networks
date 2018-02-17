@@ -14,6 +14,10 @@ public class Network {
 	private double[][] neuronValues;
 	private double[][] neuronDerivativeValues;
 	private double[][] neuronSumValues;
+	private int activationMode;
+	
+	public static final int ACTIVATION_SIGMOID = 0;
+	public static final int ACTIVATION_RELU = 1;
 	
 
 	//////
@@ -29,15 +33,24 @@ public class Network {
 	 */
 
 	public Network(int[] layout) {
-		this(layout, true);
+		this(layout, true, ACTIVATION_SIGMOID);
+	}
+	
+	public Network(int[] layout, int activationMode) {
+		this(layout, true, activationMode);
+	}
+	
+	public Network(int[] layout, boolean randomizeValues) {
+		this(layout, randomizeValues, ACTIVATION_SIGMOID);
 	}
 
 	//////
 	//////// generate Network randomly OR without value initialization
 	//////
 
-	private Network(int[] layout, boolean randomizeValues) {
+	private Network(int[] layout, boolean randomizeValues, int activationMode) {
 		inputNeuronsAmount = layout[0];
+		this.activationMode = activationMode; 
 
 		// create neuron matrix
 		neurons = new Neuron[layout.length - 1][];
@@ -47,7 +60,7 @@ public class Network {
 
 			// create neurons
 			for (int n = 0; n < neurons[layer - 1].length; n++)
-				neurons[layer - 1][n] = new Neuron(layer - 1, this, randomizeValues);
+				neurons[layer - 1][n] = new Neuron(layer - 1, this, randomizeValues, activationMode);
 		}
 
 		// create neuronValues matrix for caching output values of the neurons
@@ -233,19 +246,40 @@ public class Network {
 						// nextLayerNeuron
 						double connectingWeight = neurons[layer + 1][nextLayerNeuron].getWeights()[n];
 
-						// get the derivative of sigmoid over nextLayerNeurons
+						// get the derivative of the activation over nextLayerNeurons
 						// sum z
-						double dSig = MathFunctions.derivativeSigmoid(
-								neuronSumValues[layer + 1][nextLayerNeuron]);
+						double dActivation;
+						//Get the right derivative function according to activationMode
+						switch (activationMode) {
+						case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+								neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+								neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						default: dActivation = MathFunctions.derivativeSigmoid(
+								 neuronSumValues[layer + 1][nextLayerNeuron]); break;
+						}
+						
 						// add to the sum
-						sum += connectingWeight * dSig * neuronDerivativeValues[layer + 1][nextLayerNeuron];
+						sum += connectingWeight * dActivation
+								* neuronDerivativeValues[layer + 1][nextLayerNeuron];
 					}
 					neuronDerivativeValues[layer][n] = sum;
 				}
 
 				// update its weights and its bias
-				// Get the derivative of sigmoid over the sum z of this neuron
-				double dSig = MathFunctions.derivativeSigmoid(neuronSumValues[layer][n]);
+				// Get the derivative of activation over the sum z of this neuron
+				double dActivation;
+				
+				//Get the right derivative function according to activationMode
+				switch (activationMode) {
+				case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+						neuronSumValues[layer][n]); break;
+				case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+						neuronSumValues[layer][n]); break;
+				default: dActivation = MathFunctions.derivativeSigmoid(
+						 neuronSumValues[layer][n]); break;
+				}
+				
 //				if (layer != 0) {
 //					dSig = MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer - 1]));
 //				} else {
@@ -266,7 +300,8 @@ public class Network {
 						previousValue = inputValues[weight];
 					}
 
-					gradient[weight] = -1 * previousValue * dSig * neuronDerivativeValues[layer][n];
+					gradient[weight] = -1 * previousValue * dActivation
+							* neuronDerivativeValues[layer][n];
 
 				}
 
@@ -279,7 +314,7 @@ public class Network {
 
 				// generate new bias for neuron (-1 from derivative and gradient
 				// should eliminate)
-				double biasCorrection = dSig * neuronDerivativeValues[layer][n];
+				double biasCorrection = dActivation * neuronDerivativeValues[layer][n];
 				neurons[layer][n].setBias(neurons[layer][n].getBias() + biasCorrection);
 			}
 		}

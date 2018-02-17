@@ -7,14 +7,14 @@ import org.network.Network;
 public class Main {
 
 	public static void main(String[] args) {
-		test1();
-//		Network net = new Network(new int[] {2, 25, 12, 1});
-//		
-//		long time = System.currentTimeMillis();
-//		for(int i = 0; i < 10; i++) {
-//			net.train(new double[] {1,  3}, new double[] {0.52});
-//		}
-//		System.out.println(System.currentTimeMillis() - time);
+//		test1();
+		Network net = new Network(new int[] {2, 25, 12, 10, 5, 2, 1}, Network.ACTIVATION_RELU);
+		
+		long time = System.currentTimeMillis();
+		for(int i = 0; i < 10000; i++) {
+			net.train(new double[] {1,  3}, new double[] {1});
+		}
+		System.out.println(System.currentTimeMillis() - time);
 	}
 
 	public static void test2() {
