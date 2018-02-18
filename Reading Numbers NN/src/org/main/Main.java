@@ -1,44 +1,57 @@
 package org.main;
 
-import org.activationFunctions.*;
+import org.activationFunctions.Linear;
+import org.activationFunctions.ReLU;
+import org.gui.GUI;
 import org.network.Network;
 
 public class Main {
 
 	public static void main(String[] args) {
-		test1();
-		test2();
-//		test3();
+		// test1();
+		// test2();
+		guiTest();
 	}
-	
+
+	public static void guiTest() {
+		new GUI();
+	}
+
 	public static void test3() {
-		Network net = Network.loadNetworkFromFile("addierer.txt");
-		net.setLearningRate(0.0000001);
-		net.setActivationFunction(new ReLU());
-		double i1 = 7565465.466846;
-		double i2 = 4864.78455;
-		System.out.println(net.feedForward(new double[] {i1, i2})[0]);
+		try {
+			Network net = Network.loadNetworkFromFile("addierer.txt");
+			net.setLearningRate(0.0000001);
+			net.setActivationFunction(new ReLU());
+			double i1 = 7565465.466846;
+			double i2 = 4864.78455;
+			System.out.println(net.feedForward(new double[] { i1, i2 })[0]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void test2() {
-		Network net = Network.loadNetworkFromFile("addierer.txt");
-		net.setLearningRate(0.000001);
-		net.setActivationFunction(new Linear());
+		try {
+			Network net = Network.loadNetworkFromFile("addierer.txt");
+			net.setLearningRate(0.000001);
+			net.setActivationFunction(new Linear());
 
-		int d1, d2;
-		int iterations = 100;
-		double[][] inputs = new double[iterations][2];
-		double[][] outputs = new double[iterations][1];
+			int d1, d2;
+			int iterations = 100;
+			double[][] inputs = new double[iterations][2];
+			double[][] outputs = new double[iterations][1];
 
-		for (int i = 0; i < iterations; i++) {
-			d1 = (int) (Math.random() * 8);
-			d2 = (int) (Math.random() * 8);
-			inputs[i] = new double[] { d1, d2 };
-			outputs[i] = new double[] { d1 + d2 };
+			for (int i = 0; i < iterations; i++) {
+				d1 = (int) (Math.random() * 8);
+				d2 = (int) (Math.random() * 8);
+				inputs[i] = new double[] { d1, d2 };
+				outputs[i] = new double[] { d1 + d2 };
+			}
+
+			net.trainingSession(inputs, outputs);
+		} catch (Exception exc) {
+			exc.printStackTrace();
 		}
-
-		net.trainingSession(inputs, outputs);
-
 	}
 
 	public static void test1() {

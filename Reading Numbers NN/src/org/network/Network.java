@@ -99,7 +99,7 @@ public class Network {
 	////////// generate Network from file
 	////////
 
-	public static Network loadNetworkFromFile(String inputFilePath) {
+	public static Network loadNetworkFromFile(String inputFilePath) throws Exception {
 
 		Network newNetwork = null;
 
@@ -150,6 +150,7 @@ public class Network {
 		} catch (Exception e) {
 			System.out.println("failed to load NN from file: '" + inputFilePath + "'");
 			e.printStackTrace();
+			throw e;
 		}
 
 		return newNetwork;
@@ -291,21 +292,27 @@ public class Network {
 						// nextLayerNeuron
 						double connectingWeight = neurons[layer + 1][nextLayerNeuron].getWeights()[n];
 
-						// get the derivative of the activation over nextLayerNeurons
+						// get the derivative of the activation over
+						// nextLayerNeurons
 						// sum z
 						double dActivation;
-						// Get the right derivative function according to activationMode
+						// Get the right derivative function according to
+						// activationMode
 
 						dActivation = activationFunction.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
 
 						// switch (activationMode) {
-						// case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+						// case ACTIVATION_SIGMOID: dActivation =
+						// MathFunctions.derivativeSigmoid(
 						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+						// case ACTIVATION_RELU: dActivation =
+						// MathFunctions.derivativeRelu(
 						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
+						// case ACTIVATION_LEAKY_RELU: dActivation =
+						// MathFunctions.derivativeLeakyRelu(
 						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// default: dActivation = MathFunctions.derivativeSigmoid(
+						// default: dActivation =
+						// MathFunctions.derivativeSigmoid(
 						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
 						// }
 
@@ -316,17 +323,21 @@ public class Network {
 				}
 
 				// update its weights and its bias
-				// Get the derivative of activation over the sum z of this neuron
+				// Get the derivative of activation over the sum z of this
+				// neuron
 				double dActivation;
 
 				// Get the right derivative function according to activationMode
 				dActivation = activationFunction.derivative(neuronSumValues[layer][n]);
 				// switch (activationMode) {
-				// case ACTIVATION_SIGMOID: dActivation = MathFunctions.derivativeSigmoid(
+				// case ACTIVATION_SIGMOID: dActivation =
+				// MathFunctions.derivativeSigmoid(
 				// neuronSumValues[layer][n]); break;
-				// case ACTIVATION_RELU: dActivation = MathFunctions.derivativeRelu(
+				// case ACTIVATION_RELU: dActivation =
+				// MathFunctions.derivativeRelu(
 				// neuronSumValues[layer][n]); break;
-				// case ACTIVATION_LEAKY_RELU: dActivation = MathFunctions.derivativeLeakyRelu(
+				// case ACTIVATION_LEAKY_RELU: dActivation =
+				// MathFunctions.derivativeLeakyRelu(
 				// neuronSumValues[layer][n]); break;
 				// default: dActivation = MathFunctions.derivativeSigmoid(
 				// neuronSumValues[layer][n]); break;
@@ -397,12 +408,11 @@ public class Network {
 			String expectedOutString = Arrays.toString(expectedOutputs[i]);
 
 			double errSum = 0;
-			for(int out = 0; out < output.length; out++) {
+			for (int out = 0; out < output.length; out++) {
 				errSum += Math.pow(output[out] - expectedOutputs[i][out], 2);
 			}
-			
+
 			System.out.println("Expected: " + expectedOutString + " Out: " + outString + " Error: " + errSum);
-			
 
 			boolean isRight = true;
 			for (int outNeuron = 0; outNeuron < output.length; outNeuron++) {
