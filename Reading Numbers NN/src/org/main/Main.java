@@ -1,7 +1,6 @@
 package org.main;
 
-import org.activationFunctions.Linear;
-import org.activationFunctions.ReLU;
+import org.activationFunctions.*;
 import org.gui.GUI;
 import org.network.Network;
 
@@ -74,5 +73,5 @@ public class Main {
 		Network.exportToFile(net, "addierer.txt");
 
 	}
-
+	
 }

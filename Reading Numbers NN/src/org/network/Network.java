@@ -406,12 +406,12 @@ public class Network {
 			double[] output = train(inputValues[i], expectedOutputs[i]);
 			String outString = Arrays.toString(output);
 			String expectedOutString = Arrays.toString(expectedOutputs[i]);
-
+				
 			double errSum = 0;
 			for (int out = 0; out < output.length; out++) {
 				errSum += Math.pow(output[out] - expectedOutputs[i][out], 2);
 			}
-
+				
 			System.out.println("Expected: " + expectedOutString + " Out: " + outString + " Error: " + errSum);
 
 			boolean isRight = true;
