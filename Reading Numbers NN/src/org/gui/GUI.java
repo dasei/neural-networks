@@ -5,15 +5,16 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.activationFunctions.ActivationFunction;
 import org.network.Network;
 
 import com.sun.glass.events.KeyEvent;
@@ -30,15 +32,20 @@ import com.sun.glass.events.KeyEvent;
 public class GUI extends JFrame {
 
 	private Network network;
+	private File networkDataFile;
+	private File lastCreatedFile;
 
 	// -- JAVA SWING things --
 	private JPanel pMainCard;
 
 	// 'create new file' panel (CNF = create new file)
+	private JLabel lCNFHeader;
 	private JTextField txtCNFName;
-	private JTextField txtCNFLayout;
-	private JComboBox cbCNFActivationFunction;
 	private JLabel lCNFNameError;
+	private JTextField txtCNFLayout;
+	private JLabel lCNFLayoutError;
+	private JComboBox<String> cbCNFActivationFunction;
+	private JLabel lCNFMainError;
 
 	// 'import file' panel (IF = import file)
 	private JTextField txtIFName;
@@ -50,9 +57,12 @@ public class GUI extends JFrame {
 	public static final String CARDTYPE_IMPORTFILE = "importfile";
 	public static final String CARDTYPE_EXPORTFILE = "exportfile";
 
+	private static final int DEFAULT_RIGID_AREA_SIZE = 15;
+
 	public GUI() {
 		// @formatter:off
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setResizable(false);
 
 		// top menu bar
 		JMenuBar menuBar = new JMenuBar();
@@ -98,15 +108,32 @@ public class GUI extends JFrame {
 		// main JPanel
 		pMainCard = new JPanel();
 		pMainCard.setLayout(new CardLayout());
-		pMainCard.setPreferredSize(new Dimension(480,270));
+		//pMainCard.setPreferredSize(new Dimension(480,270));
+		pMainCard.setPreferredSize(new Dimension(400,300));
 		this.getContentPane().add(pMainCard, BorderLayout.CENTER);
 		
 		
 		// create new file panel (CNF)
 		JPanel pCNF = new JPanel();
 		pCNF.setLayout(new BoxLayout( pCNF, BoxLayout.Y_AXIS));
-		////pCNF.setBackground(Color.green);		
 // -- 			components of 'create new file' panel:
+				
+		
+		
+		
+			lCNFHeader = new JLabel("Create a new Neural Network");
+			lCNFHeader.setAlignmentX(Container.CENTER_ALIGNMENT);
+			lCNFHeader.setFont(new Font("arial", Font.BOLD, 25));		
+			pCNF.add(lCNFHeader);
+						
+			
+			
+			
+			pCNF.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+				
+		
+		
+		
 			JPanel pCNFName = new JPanel();
 				JLabel lMarkCNFName = new JLabel("Name:");
 				pCNFName.add(lMarkCNFName);
@@ -119,14 +146,19 @@ public class GUI extends JFrame {
 				pCNFName.add(lMarkCNFTxt);
 			pCNF.add(pCNFName);
 			
-			// CNF error label
+			// CNF name error label
 			lCNFNameError = new JLabel("name invalid!");
 			lCNFNameError.setAlignmentX(Container.CENTER_ALIGNMENT);
 			lCNFNameError.setForeground(Color.red);
 			lCNFNameError.setVisible(false);
 			pCNF.add(lCNFNameError);
 			
-			pCNF.add(Box.createRigidArea(new Dimension(0,15)));
+			
+			
+			
+			pCNF.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+			
+			
 			
 			
 			JPanel pCNFLayout = new JPanel();				
@@ -138,9 +170,23 @@ public class GUI extends JFrame {
 				pCNFLayout.add(txtCNFLayout);
 			pCNF.add(pCNFLayout);
 			
+			// CNF layout error label
+			lCNFLayoutError = new JLabel();
+			lCNFLayoutError.setAlignmentX(Container.CENTER_ALIGNMENT);
+			lCNFLayoutError.setForeground(Color.red);
+			lCNFLayoutError.setVisible(false);
+			pCNF.add(lCNFLayoutError);
+			
 			JLabel lMarkCNFLayoutEG = new JLabel("(e.g. '9, 7, 7, 4')");
 			lMarkCNFLayoutEG.setAlignmentX(Container.CENTER_ALIGNMENT);
 			pCNF.add(lMarkCNFLayoutEG);
+			
+			
+			
+			
+			pCNF.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+			
+			
 			
 			
 			JPanel pCNFActivationFunction = new JPanel();
@@ -148,20 +194,48 @@ public class GUI extends JFrame {
 				pCNFActivationFunction.add(lCNFActivationFunction);
 				
 				String[] activationFunctions = {"Sigmoid", "Linear", "ReLU", "LeakyReLU"};
-				cbCNFActivationFunction = new JComboBox(activationFunctions);
+				cbCNFActivationFunction = new JComboBox<String>(activationFunctions);
 				pCNFActivationFunction.add(cbCNFActivationFunction);				
-			pCNF.add(pCNFActivationFunction);
+			pCNF.add(pCNFActivationFunction);			
 			
-			//TODO add activation function for entire network
 			
-			JButton bCNF = new JButton("create");
-			bCNF.setAlignmentX(Container.CENTER_ALIGNMENT);
-			bCNF.addActionListener(new ActionListener() {				
-				public void actionPerformed(ActionEvent e) {
-					onFileCreateNew();
-				}
-			});			
-			pCNF.add(bCNF);
+			
+			
+			pCNF.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			
+			//TODO add button that combines creation and import in one click
+			JPanel pCNFCreate = new JPanel();
+			pCNFCreate.setAlignmentX(Container.CENTER_ALIGNMENT);
+				JButton bCNF = new JButton("create");				
+				bCNF.addActionListener(new ActionListener() {				
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickCNF();
+					}
+				});			
+				pCNFCreate.add(bCNF);
+				
+				JButton bCNFAndImport = new JButton("create + import");				
+				bCNFAndImport.addActionListener(new ActionListener() {				
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickCNFAndImport();						
+					}
+				});			
+				pCNFCreate.add(bCNFAndImport);
+			pCNF.add(pCNFCreate);
+			
+			
+			
+			
+			lCNFMainError = new JLabel("main error label");
+			lCNFMainError.setForeground(Color.red);
+			lCNFMainError.setVisible(false);
+			lCNFMainError.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pCNF.add(lCNFMainError);
+			
+			
+			
 			
 			pCNF.add(Box.createRigidArea(new Dimension(0,9000)));
 // --
@@ -183,7 +257,7 @@ public class GUI extends JFrame {
 			JButton bIF = new JButton("Import");
 			bIF.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					onFileImport();
+					onButtonClickIF();
 				}
 			});
 			pImport.add(bIF);
@@ -193,7 +267,7 @@ public class GUI extends JFrame {
 		// export file panel
 		JPanel pExport = new JPanel();
 		pExport.setBackground(Color.blue);
-		pMainCard.add(pExport, CARDTYPE_EXPORTFILE);		
+		pMainCard.add(pExport, CARDTYPE_EXPORTFILE);
 		
 		
 		this.pack();
@@ -222,54 +296,47 @@ public class GUI extends JFrame {
 		switchMainPanelTo(CARDTYPE_EXPORTFILE);
 	}
 
-	private void onFileImport() {
-		if (txtIFName.getText().equals("")) {
-			showDialog("invalid path");
-			return;
-		}
-		try {
-			network = Network.loadNetworkFromFile(txtIFName.getText() + ".txt");
-		} catch (Exception exc) {
-
+	private void onButtonClickCNFAndImport() {
+		if (onButtonClickCNF()) {
+			importNetwork(lastCreatedFile);
 		}
 	}
 
-	private void onFileExport() {
-		if (txtEFPath.getText().equals("")) {
-			showDialog("invalid path");
-			return;
-		}
+	private boolean onButtonClickCNF() {
+		// firstly reset all error displays
+		lCNFNameError.setVisible(false);
+		lCNFLayoutError.setVisible(false);
+		lCNFMainError.setVisible(false);
 
-		Network.exportToFile(network, txtEFPath.getText() + ".txt");
-	}
-
-	private void onFileCreateNew() {
 		String name = txtCNFName.getText();
 
-		// check if entered name is valid
+		////////
+		//// check if NAME is valid
 		char[] notSupportedChars = { '|', '<', '>', '/', '\\', ':', '*', '?', '"' };
 		for (char cStr : name.toCharArray())
 			for (char c : notSupportedChars)
 				if (cStr == c) {
+					lCNFNameError.setText("invalid character: '" + cStr + "'");
 					lCNFNameError.setVisible(true);
-					return;
+					return false;
 				}
 		if (name.equals("")) {
+			lCNFNameError.setText("name mustn't be empty");
 			lCNFNameError.setVisible(true);
-			return;
+			return false;
 		}
-		lCNFNameError.setVisible(false);
 
-		// check if layout is valid
+		////////
+		//// check if LAYOUT is valid
 		String layoutStrRaw = txtCNFLayout.getText();
 
 		if (layoutStrRaw.equals("")) {
-			// TODO show layout error label (textbox empty)
 			System.out.println("something seems to be wrong with the entered layout");
-			return;
+			lCNFLayoutError.setText("layout mustn't be empty");
+			lCNFLayoutError.setVisible(true);
+			return false;
 		}
 
-		// String[] layoutStr = txtCNFLayout.getText().split(",");
 		char[] supportedCharacters = { ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 		boolean charOK = false;
 		for (char cRaw : layoutStrRaw.toCharArray()) {
@@ -281,34 +348,122 @@ public class GUI extends JFrame {
 				}
 			}
 			if (!charOK) {
-				// TODO show layout error label
-				System.out.println("something seems to be wrong with the entered layout");
-				return;
+				lCNFLayoutError.setText("invalid character: '" + cRaw + "'");
+				lCNFLayoutError.setVisible(true);
+				// System.out.println("something seems to be wrong with the
+				// entered layout");
+				return false;
 			}
 		}
+		// check syntax of layout
+		// check if there's a comma at front or back
+		if (layoutStrRaw.startsWith(",")) {
+			lCNFLayoutError.setText("syntax error at beginning of String");
+			lCNFLayoutError.setVisible(true);
+			return false;
+		} else if (layoutStrRaw.endsWith(",")) {
+			lCNFLayoutError.setText("syntax error at end of String");
+			lCNFLayoutError.setVisible(true);
+			return false;
+		}
+		// (one comma after another comma)
+		char cBefore = 'x';
+		for (char c : layoutStrRaw.toCharArray()) {
+			if (cBefore == ',' && c == ',') {
+				lCNFLayoutError.setText("syntax error");
+				lCNFLayoutError.setVisible(true);
+				return false;
+			}
+			cBefore = c;
+		}
 
-		return;
-		//
-		// try {
-		// // get layout
-		// int[] layout = new int[layoutStr.length];
-		// for (int i = 0; i < layoutStr.length; i++) {
-		// layout[i] = Integer.parseInt(layoutStr[i]);
-		// }
-		//
-		// network = new Network(layout, (ActivationFunction) Class
-		// .forName((String)
-		// cbCNFActivationFunction.getSelectedItem()).getConstructor().newInstance());
-		//
-		// System.out.println("created new network!");
-		// } catch (Exception exc) {
-		// System.out.println("creating a new network failed");
-		// exc.printStackTrace();
-		// }
+		////////
+		//// CONVERT LAYOUT STRING to int[]
+		String[] layoutStr = layoutStrRaw.split(",");
+
+		int[] layout = new int[layoutStr.length];
+		try {
+			for (int i = 0; i < layoutStr.length; i++) {
+				layout[i] = Integer.parseInt(layoutStr[i]);
+			}
+		} catch (Exception e) {
+			lCNFMainError.setText("error while trying to process entered layout");
+			lCNFMainError.setVisible(true);
+			e.printStackTrace();
+			return false;
+		}
+
+		// check if layout has at least a length of 2
+		if (layout.length < 2) {
+			lCNFLayoutError.setText("layout too small");
+			lCNFLayoutError.setVisible(true);
+			lCNFMainError.setText("network must have at least two layers");
+			lCNFMainError.setVisible(true);
+			return false;
+		}
+
+		// check if layout has no empty layers
+		for (int i : layout)
+			if (i <= 0) {
+				lCNFMainError.setText("network can't have empty layers");
+				lCNFMainError.setVisible(true);
+				return false;
+			}
+
+		// create (export a new netork object)
+		try {
+			Network network = new Network(layout,
+					(ActivationFunction) Class
+							.forName((String) ("org.activationFunctions." + cbCNFActivationFunction.getSelectedItem()))
+							.getConstructor().newInstance());
+
+			File exportFile = new File(name + ".txt");
+			exportNetwork(network, exportFile);
+
+			lastCreatedFile = exportFile;
+			System.out.println("created new network! '" + name + "'");
+			return true;
+		} catch (Exception e) {
+			lCNFMainError.setText("error while trying to create network");
+			lCNFMainError.setVisible(true);
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 
-	private static void showDialog(String msg) {
-		JDialog d = new JDialog();
-		d.setVisible(true);
+	private void onButtonClickIF() {
+		if (txtIFName.getText().equals("")) {
+			// TODO alles :3 (inputs auswerten und errors anzeigen und so)
+			return;
+		}
+
+		importNetwork(new File(txtIFName.getText() + ".txt"));
+
 	}
+
+	private void onButtonClickEF() {
+		if (txtEFPath.getText().equals("")) {
+			// TODO alles :3
+			return;
+		}
+
+		Network.exportToFile(network, new File(txtEFPath.getText() + ".txt"));
+	}
+
+	private void importNetwork(File file) {
+		try {
+			network = Network.loadNetworkFromFile(file);
+			networkDataFile = file;
+
+			this.setTitle("NN: '" + networkDataFile.getName() + "'");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void exportNetwork(Network network, File exportFile) {
+		Network.exportToFile(network, exportFile);
+	}
+
 }

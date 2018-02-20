@@ -57,7 +57,7 @@ public class Network {
 	}
 
 	//////
-	//////// generate Network randomly OR without value initialization
+	//////// master constructor for new initialization
 	//////
 
 	private Network(int[] layout, boolean randomizeValues, ActivationFunction activationFunction, double learningRate) {
@@ -99,12 +99,12 @@ public class Network {
 	////////// generate Network from file
 	////////
 
-	public static Network loadNetworkFromFile(String inputFilePath) throws Exception {
+	public static Network loadNetworkFromFile(File inputFile) throws Exception {
 
 		Network newNetwork = null;
 
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(new File(inputFilePath)));
+			BufferedReader reader = new BufferedReader(new FileReader(inputFile));
 
 			////////
 			//// read network layout
@@ -148,7 +148,7 @@ public class Network {
 			reader.close();
 
 		} catch (Exception e) {
-			System.out.println("failed to load NN from file: '" + inputFilePath + "'");
+			System.out.println("failed to load NN from file: '" + inputFile.getAbsolutePath() + "'");
 			e.printStackTrace();
 			throw e;
 		}
@@ -160,12 +160,12 @@ public class Network {
 	//// export Network to file
 	////////
 
-	public static void exportToFile(Network network, String exportFilePath) {
+	public static void exportToFile(Network network, File exportFile) {
 
 		PrintWriter writer;
 
 		try {
-			writer = new PrintWriter(new FileWriter(new File(exportFilePath)));
+			writer = new PrintWriter(new FileWriter(exportFile));
 
 			////////
 			//// print layout of this Network
@@ -207,7 +207,7 @@ public class Network {
 			writer.close();
 
 		} catch (Exception e) {
-			System.out.println("failed to export nn to file: '" + exportFilePath + "'");
+			System.out.println("failed to export nn to file: '" + exportFile.getAbsolutePath() + "'");
 			e.printStackTrace();
 		}
 

@@ -1,5 +1,7 @@
 package org.main;
 
+import java.io.File;
+
 import org.activationFunctions.Linear;
 import org.activationFunctions.ReLU;
 import org.gui.GUI;
@@ -19,7 +21,7 @@ public class Main {
 
 	public static void test3() {
 		try {
-			Network net = Network.loadNetworkFromFile("addierer.txt");
+			Network net = Network.loadNetworkFromFile(new File("addierer.txt"));
 			net.setLearningRate(0.0000001);
 			net.setActivationFunction(new ReLU());
 			double i1 = 7565465.466846;
@@ -32,7 +34,7 @@ public class Main {
 
 	public static void test2() {
 		try {
-			Network net = Network.loadNetworkFromFile("addierer.txt");
+			Network net = Network.loadNetworkFromFile(new File("addierer.txt"));
 			net.setLearningRate(0.000001);
 			net.setActivationFunction(new Linear());
 
@@ -71,7 +73,7 @@ public class Main {
 
 		System.out.println((System.currentTimeMillis() - time));
 
-		Network.exportToFile(net, "addierer.txt");
+		Network.exportToFile(net, new File("addierer.txt"));
 
 	}
 

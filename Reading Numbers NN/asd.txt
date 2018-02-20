@@ -1,0 +1,2 @@
+layout:1,
+learning rate:0.1
