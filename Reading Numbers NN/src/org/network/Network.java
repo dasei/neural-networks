@@ -406,12 +406,12 @@ public class Network {
 			double[] output = train(inputValues[i], expectedOutputs[i]);
 			String outString = Arrays.toString(output);
 			String expectedOutString = Arrays.toString(expectedOutputs[i]);
-				
+
 			double errSum = 0;
 			for (int out = 0; out < output.length; out++) {
 				errSum += Math.pow(output[out] - expectedOutputs[i][out], 2);
 			}
-				
+
 			System.out.println("Expected: " + expectedOutString + " Out: " + outString + " Error: " + errSum);
 
 			boolean isRight = true;
@@ -433,6 +433,32 @@ public class Network {
 
 	public void setActivationFunctionForNeuron(int hiddenLayer, int n, ActivationFunction f) {
 		neurons[hiddenLayer][n].setActivationFunction(f);
+	}
+
+	////////
+	////////// DEBUG
+	////////
+
+	public double getErrorForAddition() {
+
+		if (this.inputNeuronsAmount == 2 && this.neurons[this.neurons.length - 1].length == 1) {
+
+			int x1, x2;
+			int iterations = 100;
+			double errorSum = 0;
+			for (int i = 0; i < iterations; i++) {
+				x1 = (int) (Math.random() * 100 - 50);
+				x2 = (int) (Math.random() * 100 - 50);
+				errorSum += Math.pow((x1 + x2) - this.feedForward(new double[] { x1, x2 })[0], 2);
+			}
+
+			return errorSum / iterations;
+
+		} else {
+			System.out.println(
+					"couldnt get error for addition, because network didnt have 2 inputs neurons and/or 1 output neuron");
+			return 0;
+		}
 	}
 
 }
