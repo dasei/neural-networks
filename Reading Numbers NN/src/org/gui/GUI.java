@@ -65,8 +65,11 @@ public class GUI extends JFrame {
 	// 'train' panel (T = train)
 	private JTextField txtTLearningRate;
 	private JLabel lTLearningRateError;
-	private JButton bTOneCycle;
-	private JLabel lTProgressInfo;
+	private JTextField txtTIterations;
+	private JLabel lTIterationsError;
+	private JLabel lTIterationInfo;
+	private JLabel lTErrorInfo;
+	private JLabel lTInfo;
 
 	public static final String CARDTYPE_CREATENEWFILE = "createnewfile";
 	public static final String CARDTYPE_IMPORTFILE = "importfile";
@@ -87,6 +90,7 @@ public class GUI extends JFrame {
 		
 		Font fontHeaderBig = new Font("arial", Font.BOLD, 25);
 		Font fontHeaderSmall = new Font("arial", Font.BOLD, 20);
+		Font fontConsolasDefault = new Font("consolas", Font.PLAIN, 12);
 
 // -------------------------------------------------------------------------------------------------MENU BAR----------------------------------
 		
@@ -461,24 +465,64 @@ public class GUI extends JFrame {
 			
 			JPanel pTButtons = new JPanel();
 			pTButtons.setAlignmentX(Container.CENTER_ALIGNMENT);
-				bTOneCycle = new JButton("train one cycle");
+				JButton bTOneCycle = new JButton("1 cycle");
 				bTOneCycle.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						onButtonClickTrainOneCycle();
 					}
 				});
 				pTButtons.add(bTOneCycle);
+				
+				JButton bTThousandCycles = new JButton("1000 cycles");
+				bTThousandCycles.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickTrainThousandCycles();
+					}
+				});
+				pTButtons.add(bTThousandCycles);
 			pTrain.add(pTButtons);
 			
+			
+			JPanel pTIterationButton = new JPanel();
+			pTIterationButton.setAlignmentX(Container.CENTER_ALIGNMENT);
+				txtTIterations = new JTextField(10);				
+				pTIterationButton.add(txtTIterations);
+				
+				JButton bTIterations = new JButton("cycles");
+				bTIterations.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickTrainIterations();
+					}
+				});
+				pTIterationButton.add(bTIterations);
+			pTrain.add(pTIterationButton);
+				
+			
+			lTIterationsError = new JLabel();
+			lTIterationsError.setVisible(false);
+			lTIterationsError.setForeground(Color.red);
+			lTIterationsError.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pTrain.add(lTIterationsError);			
 			
 			
 			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
 			
 			
 			
-			lTProgressInfo = new JLabel("");
-			lTProgressInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
-			pTrain.add(lTProgressInfo);
+			lTIterationInfo = new JLabel("");
+			lTIterationInfo.setFont(fontConsolasDefault);
+			lTIterationInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pTrain.add(lTIterationInfo);
+			
+			lTErrorInfo = new JLabel("");
+			lTErrorInfo.setFont(fontConsolasDefault);
+			lTErrorInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pTrain.add(lTErrorInfo);
+			
+			lTInfo = new JLabel("");
+			lTInfo.setFont(fontConsolasDefault);
+			lTInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pTrain.add(lTInfo);
 			
 			
 			
@@ -557,7 +601,27 @@ public class GUI extends JFrame {
 	}
 
 	private void onButtonClickTrainOneCycle() {
-		onButtonClickTrainINTERN(1000000);
+		onButtonClickTrainINTERN(1);
+	}
+
+	private void onButtonClickTrainThousandCycles() {
+		onButtonClickTrainINTERN(1000);
+	}
+
+	private void onButtonClickTrainIterations() {
+		lTIterationsError.setVisible(false);
+		long iterations = -1;
+		try {
+			iterations = Long.parseLong(txtTIterations.getText());
+		} catch (Exception e) {
+			lTIterationsError.setText("amount of iterations is invalid");
+			lTIterationsError.setVisible(true);
+			return;
+		}
+
+		if (iterations > 0) {
+			onButtonClickTrainINTERN(iterations);
+		}
 	}
 
 	private void onButtonClickTrainINTERN(long iterations) {
@@ -753,7 +817,9 @@ public class GUI extends JFrame {
 			return;
 		}
 
-		importNetwork(file);
+		if (importNetwork(file)) {
+			txtTLearningRate.setText(network.getLearningRate() + "");
+		}
 	}
 
 	private void onButtonClickIFInspect() {
@@ -790,7 +856,7 @@ public class GUI extends JFrame {
 		}
 	}
 
-	private void importNetwork(File file) {
+	private boolean importNetwork(File file) {
 		try {
 			network = Network.loadNetworkFromFile(file);
 			networkDataFile = file;
@@ -798,8 +864,12 @@ public class GUI extends JFrame {
 			menuItemExport.setEnabled(true);
 			menuItemTrain.setEnabled(true);
 			this.setTitle("NN: '" + networkDataFile.getName() + "'");
+
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+
+			return false;
 		}
 	}
 
@@ -832,8 +902,67 @@ public class GUI extends JFrame {
 
 	}
 
-	public void updateTrainingProgress(long iterationsDone, long iterationsTotal, double currentError, String note) {
-		lTProgressInfo.setText("<html>iterations: " + iterationsDone + "/" + iterationsTotal + "<br>error: "
-				+ currentError + "<br>" + note + "</html>");
+	public void updateTrainingProgress(long iterationsDone, long iterationsTotal, double currentError, String notePart1,
+			String notePart2, String notePart3) {
+		String iterationInfo = "iteration: ";
+		String errorInfo = "error: ";
+		String info = notePart1;
+
+		String iterationValue = iterationsDone + "/" + iterationsTotal;
+		String errorValue = currentError + "";
+		String infoValue = notePart2;
+
+		int maxStrLen = 30;
+		int maxStrLenTriple = 45;
+		int spaceLenIteration, spaceLenError, spaceLenInfo;
+
+		spaceLenIteration = maxStrLen - (iterationInfo.length() + iterationValue.length());
+		spaceLenError = maxStrLen - errorInfo.length() - errorValue.length();
+		spaceLenInfo = maxStrLen - info.length() - infoValue.length();
+
+		for (int i = 0; i < spaceLenIteration; i++)
+			iterationInfo += " ";
+		iterationInfo += iterationValue;
+
+		for (int i = 0; i < spaceLenError; i++)
+			errorInfo += " ";
+		errorInfo += errorValue;
+
+		for (int i = 0; i < spaceLenInfo; i++)
+			info += " ";
+		info += infoValue;
+
+		// the third part
+		iterationValue = ((int) (((double) iterationsDone / (double) iterationsTotal) * 1000000)) / 10000D + "%";
+		errorValue = ((int) (currentError * 1000000)) / 10000D + "%";
+		infoValue = notePart3;
+
+		spaceLenIteration = maxStrLenTriple - (iterationInfo.length() + iterationValue.length());
+		spaceLenError = maxStrLenTriple - errorInfo.length() - errorValue.length();
+		spaceLenInfo = maxStrLenTriple - info.length() - infoValue.length();
+
+		for (int i = 0; i < spaceLenIteration; i++)
+			iterationInfo += " ";
+		iterationInfo += iterationValue;
+
+		for (int i = 0; i < spaceLenError; i++)
+			errorInfo += " ";
+		errorInfo += errorValue;
+
+		for (int i = 0; i < spaceLenInfo; i++)
+			info += " ";
+		info += infoValue;
+
+		// lTIterationInfo.setText("<html>iterations: " + iterationsDone + "/" +
+		// iterationsTotal + "<br>error: "
+		// + currentError + "<br>" + note + "</html>");
+
+		System.out.println(iterationInfo);
+		System.out.println(errorInfo);
+		System.out.println(info);
+		lTIterationInfo.setText(iterationInfo);
+		lTErrorInfo.setText(errorInfo);
+		lTInfo.setText(info);
+
 	}
 }
