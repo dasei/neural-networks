@@ -21,7 +21,7 @@ public class Network {
 	// private int activationMode;
 	private double learningRate;
 
-	private ActivationFunction activationFunction;
+	// private ActivationFunction activationFunction;
 
 	// public static final int ACTIVATION_SIGMOID = 0;
 	// public static final int ACTIVATION_RELU = 1;
@@ -62,7 +62,7 @@ public class Network {
 
 	private Network(int[] layout, boolean randomizeValues, ActivationFunction activationFunction, double learningRate) {
 		inputNeuronsAmount = layout[0];
-		this.activationFunction = activationFunction;
+		// this.activationFunction = activationFunction;
 		this.learningRate = learningRate;
 
 		// create neuron matrix
@@ -160,7 +160,7 @@ public class Network {
 	//// export Network to file
 	////////
 
-	public static void exportToFile(Network network, File exportFile) {
+	public static boolean exportToFile(Network network, File exportFile) {
 
 		PrintWriter writer;
 
@@ -206,11 +206,14 @@ public class Network {
 
 			writer.close();
 
+			return true;
+
 		} catch (Exception e) {
 			System.out.println("failed to export nn to file: '" + exportFile.getAbsolutePath() + "'");
 			e.printStackTrace();
-		}
 
+			return false;
+		}
 	}
 
 	public int getAmountOfNeuronsInHiddenLayer(int hiddenLayer) {
@@ -230,7 +233,7 @@ public class Network {
 
 	// Sets given activationMode to ALL Neurons
 	public void setActivationFunction(ActivationFunction activationFunction) {
-		this.activationFunction = activationFunction;
+		// this.activationFunction = activationFunction;
 		for (Neuron[] layer : neurons) {
 			for (Neuron neuron : layer) {
 				neuron.setActivationFunction(activationFunction);
@@ -299,7 +302,8 @@ public class Network {
 						// Get the right derivative function according to
 						// activationMode
 
-						dActivation = activationFunction.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
+						dActivation = neurons[layer + 1][nextLayerNeuron].getActivationFunction()
+								.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
 
 						// switch (activationMode) {
 						// case ACTIVATION_SIGMOID: dActivation =
@@ -328,7 +332,7 @@ public class Network {
 				double dActivation;
 
 				// Get the right derivative function according to activationMode
-				dActivation = activationFunction.derivative(neuronSumValues[layer][n]);
+				dActivation = neurons[layer][n].getActivationFunction().derivative(neuronSumValues[layer][n]);
 				// switch (activationMode) {
 				// case ACTIVATION_SIGMOID: dActivation =
 				// MathFunctions.derivativeSigmoid(
@@ -459,6 +463,15 @@ public class Network {
 					"couldnt get error for addition, because network didnt have 2 inputs neurons and/or 1 output neuron");
 			return 0;
 		}
+	}
+
+	public int[] getLayout() {
+		int[] layout = new int[neurons.length + 1];
+		layout[0] = inputNeuronsAmount;
+		for (int i = 1; i < layout.length; i++)
+			layout[i] = neurons[i - 1].length;
+
+		return layout;
 	}
 
 }

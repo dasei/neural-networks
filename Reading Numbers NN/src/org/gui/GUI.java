@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 
 import org.activationFunctions.ActivationFunction;
 import org.network.Network;
+import org.trainingAlgorithms.TrainingAlgorithm_Addition;
 
 import com.sun.glass.events.KeyEvent;
 
@@ -54,13 +55,18 @@ public class GUI extends JFrame {
 
 	// 'import file' panel (IF = import file)
 	private JTextField txtIFName;
+	private JLabel lIFNameError;
+	private JLabel lIFInspect;
 
 	// 'export file' panel (EF = export file)
-	private JTextField txtEFPath;
+	private JTextField txtEFName;
+	private JLabel lEFStatus;
 
 	// 'train' panel (T = train)
 	private JTextField txtTLearningRate;
+	private JLabel lTLearningRateError;
 	private JButton bTOneCycle;
+	private JLabel lTProgressInfo;
 
 	public static final String CARDTYPE_CREATENEWFILE = "createnewfile";
 	public static final String CARDTYPE_IMPORTFILE = "importfile";
@@ -73,11 +79,11 @@ public class GUI extends JFrame {
 	public GUI() {
 		
 		//create new object for training a network
-		trainer = new GUITrainer();
+		trainer = new GUITrainer(this);
 		
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setResizable(false);
+		this.setResizable(true);
 		
 		Font fontHeaderBig = new Font("arial", Font.BOLD, 25);
 		Font fontHeaderSmall = new Font("arial", Font.BOLD, 20);
@@ -237,8 +243,6 @@ public class GUI extends JFrame {
 			pCNF.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
 			
 			
-			
-			//TODO add button that combines creation and import in one click
 			JPanel pCNFCreate = new JPanel();
 			pCNFCreate.setAlignmentX(Container.CENTER_ALIGNMENT);
 				JButton bCNF = new JButton("create");				
@@ -273,38 +277,140 @@ public class GUI extends JFrame {
 			pCNF.add(Box.createRigidArea(new Dimension(0,9000)));
 // --
 		pMainCard.add(pCNF, CARDTYPE_CREATENEWFILE);
+
 		
 		
+// -------------------------------------------------------------------IMPORT------------------------------------------------------------------ 				
 		
 		// import file panel (IF)
 		JPanel pImport = new JPanel();
-		pImport.setBackground(Color.red);
+		pImport.setLayout(new BoxLayout(pImport, BoxLayout.Y_AXIS));
 // --			components of 'import file' panel
-			JLabel lMarkIFName = new JLabel("Name:");
-			pImport.add(lMarkIFName);
 		
-			txtIFName = new JTextField();
-			pImport.add(txtIFName);
+			JLabel lIFHeader = new JLabel("Import existing Network");
+			lIFHeader.setAlignmentX(Container.CENTER_ALIGNMENT);
+			lIFHeader.setFont(fontHeaderBig);
+			pImport.add(lIFHeader);
 			
-			JLabel lMarkIFTxt = new JLabel(".txt");
-			pImport.add(lMarkIFTxt);
+			pImport.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
 			
-			JButton bIF = new JButton("Import");
-			bIF.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					onButtonClickIF();
-				}
-			});
-			pImport.add(bIF);
-// --
+			JPanel pIFName = new JPanel();
+			pIFName.setAlignmentX(Container.CENTER_ALIGNMENT);
+				JLabel lMarkIFName = new JLabel("Name: ");
+				pIFName.add(lMarkIFName);
+			
+				txtIFName = new JTextField(15);
+				pIFName.add(txtIFName);
+				
+				JLabel lMarkIFTxt = new JLabel(".txt");
+				pIFName.add(lMarkIFTxt);
+			pImport.add(pIFName);
+			
+			lIFNameError = new JLabel();
+			lIFNameError.setVisible(false);
+			lIFNameError.setForeground(Color.red);
+			lIFNameError.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pImport.add(lIFNameError);
+			
+			pImport.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+			
+			JPanel pIFButtons = new JPanel();
+			pIFButtons.setAlignmentX(Container.CENTER_ALIGNMENT);
+				JButton bIF = new JButton("Import");				
+				bIF.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickIF();
+					}
+				});
+				pIFButtons.add(bIF);
+				
+				JButton bIFInspect = new JButton("Inspect");				
+				bIFInspect.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickIFInspect();
+					}
+				});
+				pIFButtons.add(bIFInspect);
+				
+			pImport.add(pIFButtons);
+			
+			
+			pImport.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			lIFInspect = new JLabel();
+			lIFInspect.setVisible(false);
+			lIFInspect.setForeground(Color.gray);
+			lIFInspect.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pImport.add(lIFInspect);
+			
+			
+			pImport.add(Box.createRigidArea(new Dimension(0,9000)));
+// --	
 		pMainCard.add(pImport, CARDTYPE_IMPORTFILE);
 		
 // -------------------------------------------------------------------EXPORT------------------------------------------------------------------ 		
 		
 		// export file panel (EF)
 		JPanel pExport = new JPanel();
-		pExport.setBackground(Color.blue);
+		pExport.setLayout(new BoxLayout(pExport, BoxLayout.Y_AXIS));
+		
 // --		components of 'export file' panel
+			
+			JLabel lEFHeader = new JLabel("Export Network");
+			lEFHeader.setFont(fontHeaderBig);
+			lEFHeader.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pExport.add(lEFHeader);
+			
+			
+			pExport.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			JPanel pEFName = new JPanel();
+			pEFName.setAlignmentX(Container.CENTER_ALIGNMENT);			
+				JLabel lMarkEFName = new JLabel("Filename:");
+				pEFName.add(lMarkEFName);
+				
+				txtEFName = new JTextField(15);
+				pEFName.add(txtEFName);
+				
+				JLabel lMarkEFTxt = new JLabel(".txt");
+				pEFName.add(lMarkEFTxt);
+			
+			pExport.add(pEFName);
+			
+			
+			pExport.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			JPanel pEFButtons = new JPanel();
+			pEFButtons.setAlignmentX(Container.CENTER_ALIGNMENT);
+				
+				JButton bEFExport = new JButton("export");
+				bEFExport.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						onButtonClickEF();
+					}
+				});
+				pEFButtons.add(bEFExport);
+			
+			pExport.add(pEFButtons);
+			
+			
+			
+			pExport.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE/2)));
+			
+			
+			
+			lEFStatus = new JLabel();
+			lEFStatus.setVisible(false);
+			lEFStatus.setForeground(Color.gray);
+			lEFStatus.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pExport.add(lEFStatus);
+			
+			
+		
+			pExport.add(Box.createRigidArea(new Dimension(0, 9000)));
 // --
 		pMainCard.add(pExport, CARDTYPE_EXPORTFILE);
 		
@@ -316,7 +422,7 @@ public class GUI extends JFrame {
 // --		components of 'train' panel
 		
 			//header
-			JLabel lTHeader = new JLabel("Train a neural network");
+			JLabel lTHeader = new JLabel("Train the Network");
 			lTHeader.setFont(fontHeaderBig);
 			lTHeader.setAlignmentX(Container.CENTER_ALIGNMENT);
 			pTrain.add(lTHeader);
@@ -341,6 +447,14 @@ public class GUI extends JFrame {
 			
 			
 			
+			lTLearningRateError = new JLabel();
+			lTLearningRateError.setVisible(false);
+			lTLearningRateError.setAlignmentX(Container.CENTER_ALIGNMENT);
+			lTLearningRateError.setForeground(Color.red);
+			pTrain.add(lTLearningRateError);
+			
+			
+			
 			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
 			
 			
@@ -355,6 +469,16 @@ public class GUI extends JFrame {
 				});
 				pTButtons.add(bTOneCycle);
 			pTrain.add(pTButtons);
+			
+			
+			
+			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			
+			lTProgressInfo = new JLabel("");
+			lTProgressInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pTrain.add(lTProgressInfo);
 			
 			
 			
@@ -388,18 +512,42 @@ public class GUI extends JFrame {
 
 	private void onMenuClickCNF() {
 		switchMainPanelTo(CARDTYPE_CREATENEWFILE);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				txtCNFName.grabFocus();
+			}
+		});
 	}
 
 	private void onMenuClickIF() {
 		switchMainPanelTo(CARDTYPE_IMPORTFILE);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				txtIFName.grabFocus();
+			}
+		});
 	}
 
 	private void onMenuClickEF() {
 		switchMainPanelTo(CARDTYPE_EXPORTFILE);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						txtEFName.grabFocus();
+					}
+				});
+			}
+		});
 	}
 
 	private void onMenuClickT() {
 		switchMainPanelTo(CARDTYPE_TRAIN);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				txtTLearningRate.grabFocus();
+			}
+		});
 	}
 
 	private void onButtonClickCNFAndImport() {
@@ -409,7 +557,32 @@ public class GUI extends JFrame {
 	}
 
 	private void onButtonClickTrainOneCycle() {
-		startTraining();
+		onButtonClickTrainINTERN(1000000);
+	}
+
+	private void onButtonClickTrainINTERN(long iterations) {
+		lTLearningRateError.setVisible(false);
+
+		// get learning rate
+		double learningRate = -1;
+		String learningRateStr = txtTLearningRate.getText();
+		learningRateStr = learningRateStr.replaceAll(",", ".");
+
+		try {
+			learningRate = Double.parseDouble(learningRateStr);
+		} catch (Exception e) {
+		}
+
+		if (learningRate == -1) {
+			lTLearningRateError.setText("learning rate invalid");
+			lTLearningRateError.setVisible(true);
+			return;
+		}
+
+		network.setLearningRate(learningRate);
+		// System.out.println("LR: " + learningRate);
+
+		trainNetwork(iterations);
 	}
 
 	////////
@@ -563,22 +736,58 @@ public class GUI extends JFrame {
 	}
 
 	private void onButtonClickIF() {
-		if (txtIFName.getText().equals("")) {
-			// TODO alles :3 (inputs auswerten und errors anzeigen und so)
+		lIFNameError.setVisible(false);
+
+		String name = txtIFName.getText();
+		if (name.equals("")) {
+			lIFNameError.setText("name mustn't be empty");
+			lIFNameError.setVisible(true);
 			return;
 		}
 
-		importNetwork(new File(txtIFName.getText() + ".txt"));
+		File file = new File(name + ".txt");
 
+		if (!file.exists()) {
+			lIFNameError.setText("network with this name doesn't exist");
+			lIFNameError.setVisible(true);
+			return;
+		}
+
+		importNetwork(file);
+	}
+
+	private void onButtonClickIFInspect() {
+		lIFNameError.setVisible(false);
+		lIFInspect.setVisible(false);
+
+		String name = txtIFName.getText();
+		if (name.equals("")) {
+			lIFNameError.setText("name mustn't be empty");
+			lIFNameError.setVisible(true);
+			return;
+		}
+
+		File file = new File(name + ".txt");
+
+		if (!file.exists()) {
+			lIFNameError.setText("network with this name doesn't exist");
+			lIFNameError.setVisible(true);
+			return;
+		}
+
+		inspectNetwork(file);
 	}
 
 	private void onButtonClickEF() {
-		if (txtEFPath.getText().equals("")) {
+		if (txtEFName.getText().equals("")) {
 			// TODO alles :3
 			return;
 		}
 
-		Network.exportToFile(network, new File(txtEFPath.getText() + ".txt"));
+		if (Network.exportToFile(network, new File(txtEFName.getText() + ".txt"))) {
+			lEFStatus.setText("exported successfully");
+			lEFStatus.setVisible(true);
+		}
 	}
 
 	private void importNetwork(File file) {
@@ -594,35 +803,37 @@ public class GUI extends JFrame {
 		}
 	}
 
+	private void inspectNetwork(File file) {
+		try {
+			Network net = Network.loadNetworkFromFile(file);
+
+			// convert layout to str
+			int[] layout = net.getLayout();
+			String layoutStr = "";
+			for (int l : layout)
+				layoutStr += l + ",";
+			layoutStr = layoutStr.substring(0, layoutStr.length() - 1);
+
+			lIFInspect.setText("'" + file.getName() + "': " + layoutStr);
+			lIFInspect.setVisible(true);
+
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+
 	private void exportNetwork(Network network, File exportFile) {
 		Network.exportToFile(network, exportFile);
 	}
 
-	private void startTraining() {
-		// get learningRate
-		double learningRate = -1;
-		try {
-			learningRate = Double.parseDouble(txtTLearningRate.getText());
-		} catch (Exception e) {
-		}
+	private void trainNetwork(long iterations) {
 
-		if (learningRate == -1)
-			return;
+		trainer.startTraining(network, iterations, new TrainingAlgorithm_Addition());
 
-		network.setLearningRate(learningRate);
-		// System.out.println("LR: " + learningRate);
+	}
 
-		// TODO make training data selectable
-		// for now, create training data
-		double[][] inputVals = new double[5000][2];
-		double[][] outputVals = new double[5000][1];
-
-		for (int i = 0; i < inputVals.length; i++) {
-			inputVals[i][0] = (int) (Math.random() * 10 - 5);
-			inputVals[i][1] = (int) (Math.random() * 10 - 5);
-			outputVals[i][0] = inputVals[i][0] + inputVals[i][1];
-		}
-
-		trainer.startTraining(network, 100, inputVals, outputVals);
+	public void updateTrainingProgress(long iterationsDone, long iterationsTotal, double currentError, String note) {
+		lTProgressInfo.setText("<html>iterations: " + iterationsDone + "/" + iterationsTotal + "<br>error: "
+				+ currentError + "<br>" + note + "</html>");
 	}
 }

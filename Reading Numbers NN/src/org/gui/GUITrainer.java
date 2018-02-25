@@ -1,32 +1,62 @@
 package org.gui;
 
 import org.network.Network;
+import org.trainingAlgorithms.TrainingAlgorithm;
 
 public class GUITrainer {
 
-	// private TrainerThread trainerThread;
-	private boolean currentlyTraining = false;
-	private int trainingCyclesLeft = 0;
+	private GUI gui;
 
-	private volatile Network currentNetwork;
+	private boolean currentlyTraining = false;
+	private long trainingCyclesLeft;
+
+	private boolean workingWithAlgorithm;
+	private TrainingAlgorithm trainingAlgorithm;
+
+	public GUITrainer(GUI gui) {
+		// (trainerThread = new TrainerThread()).start();
+		this.gui = gui;
+		// new TrainerThread().start();
+	}
+
+	/**
+	 * train network via algorithm
+	 */
+	public void startTraining(Network net, long iterations, TrainingAlgorithm trainingAlgorithm) {
+		if (!this.currentlyTraining) {
+			this.currentlyTraining = true;
+
+			this.workingWithAlgorithm = true;
+			this.trainingAlgorithm = trainingAlgorithm;
+			this.trainingCyclesLeft = iterations;
+
+			new TrainerThread(net).start();
+		} else {
+			System.out.println("training didn't start because the network is already being trained");
+		}
+	}
+
+	// private volatile Network currentNetwork;
 	private double[][] trainingDataInputs;
 	private double[][] trainingDataOutputsExpected;
 
-	public GUITrainer() {
-		// (trainerThread = new TrainerThread()).start();
-		new TrainerThread().start();
-	}
-
+	/**
+	 * traing network via inputs and outputs (manually)
+	 */
 	public void startTraining(Network net, int iterations, double[][] inputValues, double[][] expectedOutputs) {
 		// System.out.println(net);
 		// TODO what if another network is passed into this function; should the
 		// current training be stopped?
 		if (!this.currentlyTraining) {
+			this.currentlyTraining = true;
+			this.workingWithAlgorithm = false;
 
 			this.trainingCyclesLeft = iterations;
-			this.currentNetwork = net;
+			// this.currentNetwork = net;
 			this.trainingDataInputs = inputValues.clone();
 			this.trainingDataOutputsExpected = expectedOutputs.clone();
+
+			new TrainerThread(net).start();
 
 		} else {
 			System.out.println("training didn't start because the network is already being trained");
@@ -34,26 +64,47 @@ public class GUITrainer {
 	}
 
 	private class TrainerThread extends Thread {
+
+		private Network net;
+
+		public TrainerThread(Network net) {
+			super();
+			this.net = net;
+		}
+
 		public void run() {
+			System.out.println("GUI training Thread running!");
 			this.setName("GUI Network Trainer Thread");
 
-			int iterationsDone = 0;
-			int dataset;
-			while (true) {
+			if (workingWithAlgorithm) {
+				// TODO alles xD
 
-				// System.out.println(currentNetwork);
+				trainingAlgorithm.start(gui, net, trainingCyclesLeft);
 
-				if (trainingCyclesLeft > 0) {
-					System.out.println("-----------------------");
+			} else {
+
+				long iterationsDone = 0;
+				int dataset;
+				// while loop for training manually
+				while (trainingCyclesLeft > 0) {
+
+					// System.out.println(currentNetwork);
+
+					// System.out.println("-----------------------");
 					// train
-					dataset = iterationsDone % trainingDataInputs.length;
-					System.out.println("dataset: " + dataset);
-					System.out.println("training data: " + trainingDataInputs[dataset][0] + " + "
-							+ trainingDataInputs[dataset][1] + " = " + trainingDataOutputsExpected[dataset][0]);
-					currentNetwork.train(trainingDataInputs[dataset], trainingDataOutputsExpected[dataset]);
+					dataset = (int) (iterationsDone % trainingDataInputs.length);
+					// System.out.println("dataset: " + dataset);
+					// System.out.println("training data: " +
+					// trainingDataInputs[dataset][0] + " + "
+					// + trainingDataInputs[dataset][1] + " = " +
+					// trainingDataOutputsExpected[dataset][0]);
+					net.train(trainingDataInputs[dataset], trainingDataOutputsExpected[dataset]);
 
-					System.out.println("ERROR: " + currentNetwork.getErrorForAddition());
-					System.out.println("3 + 4 = " + currentNetwork.feedForward(new double[] { 3, 4 })[0]);
+					// System.out.println("ERROR: " +
+					// currentNetwork.getErrorForAddition());
+					// System.out.println("3 + 4 = " +
+					// currentNetwork.feedForward(new double[] { 3, 4
+					// })[0]);
 
 					trainingCyclesLeft--;
 					iterationsDone++;
@@ -69,20 +120,17 @@ public class GUITrainer {
 					// System.out.println("ERROR: " +
 					// currentNetwork.getErrorForAddition());
 					// System.out.println("3 + 4 = " +
-					// currentNetwork.feedForward(new double[] { 3, 4 })[0]);
+					// currentNetwork.feedForward(new double[] { 3, 4
+					// })[0]);
 					//
 					// trainingCyclesLeft--;
 					// iterationsDone++;
-				} else {
-					iterationsDone = 0;
 
-					try {
-						Thread.sleep(10);
-					} catch (Exception e) {
-					}
 				}
 
 			}
+
+			currentlyTraining = false;
 		}
 	}
 }
