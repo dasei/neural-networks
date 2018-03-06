@@ -957,9 +957,9 @@ public class GUI extends JFrame {
 		// iterationsTotal + "<br>error: "
 		// + currentError + "<br>" + note + "</html>");
 
-		System.out.println(iterationInfo);
-		System.out.println(errorInfo);
-		System.out.println(info);
+//		System.out.println(iterationInfo);
+//		System.out.println(errorInfo);
+//		System.out.println(info);
 		lTIterationInfo.setText(iterationInfo);
 		lTErrorInfo.setText(errorInfo);
 		lTInfo.setText(info);

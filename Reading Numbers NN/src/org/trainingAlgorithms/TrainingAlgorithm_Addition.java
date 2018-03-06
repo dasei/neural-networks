@@ -36,6 +36,6 @@ public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 		gui.updateTrainingProgress(iterationCn, iterations, Math.pow(outputs[0] - net.train(inputs, outputs)[0], 2),
 				"3 + 4 = ", testOutput + "", "= " + (int) Math.round(testOutput));
 
-		System.out.println("finished!");
+//		System.out.println("finished!");
 	}
 }
