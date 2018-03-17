@@ -443,27 +443,27 @@ public class Network {
 	////////// DEBUG
 	////////
 
-	public double getErrorForAddition() {
-
-		if (this.inputNeuronsAmount == 2 && this.neurons[this.neurons.length - 1].length == 1) {
-
-			int x1, x2;
-			int iterations = 100;
-			double errorSum = 0;
-			for (int i = 0; i < iterations; i++) {
-				x1 = (int) (Math.random() * 100 - 50);
-				x2 = (int) (Math.random() * 100 - 50);
-				errorSum += Math.pow((x1 + x2) - this.feedForward(new double[] { x1, x2 })[0], 2);
-			}
-
-			return errorSum / iterations;
-
-		} else {
-			System.out.println(
-					"couldnt get error for addition, because network didnt have 2 inputs neurons and/or 1 output neuron");
-			return 0;
-		}
-	}
+//	public double getErrorForAddition() {
+//
+//		if (this.inputNeuronsAmount == 2 && this.neurons[this.neurons.length - 1].length == 1) {
+//
+//			int x1, x2;
+//			int iterations = 100;
+//			double errorSum = 0;
+//			for (int i = 0; i < iterations; i++) {
+//				x1 = (int) (Math.random() * 100 - 50);
+//				x2 = (int) (Math.random() * 100 - 50);
+//				errorSum += Math.pow((x1 + x2) - this.feedForward(new double[] { x1, x2 })[0], 2);
+//			}
+//
+//			return errorSum / iterations;
+//
+//		} else {
+//			System.out.println(
+//					"couldnt get error for addition, because network didnt have 2 inputs neurons and/or 1 output neuron");
+//			return 0;
+//		}
+//	}
 
 	public int[] getLayout() {
 		int[] layout = new int[neurons.length + 1];

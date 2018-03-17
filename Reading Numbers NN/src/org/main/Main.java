@@ -13,7 +13,39 @@ public class Main {
 		// test1();
 		// test2();
 
-		guiTest();
+		new GUI();
+		
+//		idxTest();
+	}
+	
+	public static void idxTest() {
+		
+//		IDXLoader loaderLabel = new IDXLoader("H://train-labels.idx1-ubyte");
+//		IDXLoader loaderImage = new IDXLoader("H://train-images.idx3-ubyte");
+//		
+//		System.out.println("hello?");
+//		
+////		for(byte b : loaderImage.getData(1)) {
+////			System.out.println(b);			
+////		}
+//		
+//		loaderLabel.getData(6);
+//		loaderImage.getData(6);
+//		
+//		
+//		int[] dataLabel = loaderLabel.getData(6);
+//		int[] dataImg = loaderImage.getData(6);
+//		
+//		for(int b : dataLabel) {
+//			System.out.println(b);			
+//		}
+//
+//		IDXImageInterpreter.showImage(dataImg, 28);
+//		
+////		for(byte b : loader.getData(5)) {			
+////			System.out.println(b);			
+////		}
+		
 	}
 
 	public static void guiTest() {

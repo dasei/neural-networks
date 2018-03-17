@@ -27,7 +27,7 @@ import javax.swing.SwingUtilities;
 
 import org.activationFunctions.ActivationFunction;
 import org.network.Network;
-import org.trainingAlgorithms.TrainingAlgorithm_Addition;
+import org.trainingAlgorithms.TrainingAlgorithm_ReadingNumbers;
 
 import com.sun.glass.events.KeyEvent;
 
@@ -898,7 +898,8 @@ public class GUI extends JFrame {
 
 	private void trainNetwork(long iterations) {
 
-		trainer.startTraining(network, iterations, new TrainingAlgorithm_Addition());
+//		trainer.startTraining(network, iterations, new TrainingAlgorithm_Addition());
+		trainer.startTraining(network, iterations, new TrainingAlgorithm_ReadingNumbers());
 
 	}
 
