@@ -4,8 +4,10 @@ import java.io.File;
 
 import org.activationFunctions.Linear;
 import org.activationFunctions.ReLU;
+import org.dataLoaders.IDXLoader;
 import org.gui.GUI;
 import org.network.Network;
+import org.trainingAlgorithms.TrainingAlgorithm_ReadingNumbers;
 
 public class Main {
 
@@ -13,9 +15,14 @@ public class Main {
 		// test1();
 		// test2();
 
+		IDXLoader.startLoadingData("H://train-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES, 60000, 28 * 28);
+		IDXLoader.startLoadingData("H://train-labels.idx1-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_LABELS, 60000, 10);
+		
+		
+		
 		new GUI();
 		
-//		idxTest();
+		
 	}
 	
 	public static void idxTest() {

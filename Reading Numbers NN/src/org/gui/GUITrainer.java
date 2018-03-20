@@ -73,7 +73,7 @@ public class GUITrainer {
 		}
 
 		public void run() {
-			System.out.println("GUI training Thread running!");
+//			System.out.println("GUI training Thread running!");
 			this.setName("GUI Network Trainer Thread");
 
 			if (workingWithAlgorithm) {
