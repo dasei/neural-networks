@@ -333,28 +333,7 @@ public class Network {
 
 				// Get the right derivative function according to activationMode
 				dActivation = neurons[layer][n].getActivationFunction().derivative(neuronSumValues[layer][n]);
-				// switch (activationMode) {
-				// case ACTIVATION_SIGMOID: dActivation =
-				// MathFunctions.derivativeSigmoid(
-				// neuronSumValues[layer][n]); break;
-				// case ACTIVATION_RELU: dActivation =
-				// MathFunctions.derivativeRelu(
-				// neuronSumValues[layer][n]); break;
-				// case ACTIVATION_LEAKY_RELU: dActivation =
-				// MathFunctions.derivativeLeakyRelu(
-				// neuronSumValues[layer][n]); break;
-				// default: dActivation = MathFunctions.derivativeSigmoid(
-				// neuronSumValues[layer][n]); break;
-				// }
 
-				// if (layer != 0) {
-				// dSig =
-				// MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(neuronValues[layer
-				// - 1]));
-				// } else {
-				// dSig =
-				// MathFunctions.derivativeSigmoid(neurons[layer][n].generateSum(inputValues));
-				// }
 
 				// generate gradient for gradient descent
 				double[] gradient = new double[neurons[layer][n].getWeights().length];
