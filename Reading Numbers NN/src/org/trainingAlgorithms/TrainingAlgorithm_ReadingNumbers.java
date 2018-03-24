@@ -19,8 +19,6 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 //		IDXLoader labelLoader = new IDXLoader("H://train-labels.idx1-ubyte");
 //		IDXLoader imageLoader = new IDXLoader("H://train-images.idx3-ubyte");
 		
-		//TODO das hier besser machen lel
-		
 		double[][] imageData = IDXLoader.getData(CATEGORY_IMAGES);
 		double[][] labelData = IDXLoader.getData(CATEGORY_LABELS);
 		int dataAvailable = Math.min(IDXLoader.getDataAvailable(CATEGORY_IMAGES), IDXLoader.getDataAvailable(CATEGORY_LABELS)); 
@@ -37,16 +35,23 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 		
 //		System.out.println("starting training");
 		int dataPointer = 0;
+		int fitnessSum = 0;
 		for(int l = 0; l < iterations; l++) {
 			
 			
 			
 			calculatedOutputs = net.train(imageData[dataPointer], labelData[dataPointer]);
 			
+//			calculatedOutputs = net.feedForward(imageData[dataPointer]);
+			
+			
 			
 			if(l % 100 == 0) {
 				calcError(labelData[dataPointer], calculatedOutputs);
 				gui.updateTrainingProgress(l, iterations, errorSum, "read number" , getIndexOfMaxNumber(labelData[dataPointer]) + " as", String.valueOf(outputtedNumber));
+				if(getIndexOfMaxNumber(labelData[dataPointer]) == outputtedNumber) {
+					fitnessSum ++;
+				}
 			}
 			
 			dataPointer++;
@@ -56,9 +61,12 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			}
 		}
 		
+		System.out.println("Fitness: " + (fitnessSum / (iterations + 0.0)));
+		
 //		IDXImageInterpreter.showImage(imageData[dataPointer-1], 28, false);		
 		
-		calcError(labelData[(int)(dataPointer-1)], calculatedOutputs);		
+		//TODO ArrayIndexOutOfBoundsException abfangen/verhindern (60000 Iterations)
+		calcError(labelData[(int)(dataPointer-1)], calculatedOutputs);
 		gui.updateTrainingProgress(iterations, iterations, errorSum, "read number" , getIndexOfMaxNumber(labelData[dataPointer-1]) + " as", String.valueOf(outputtedNumber));
 		
 	}

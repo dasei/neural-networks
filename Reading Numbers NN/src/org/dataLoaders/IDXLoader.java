@@ -62,11 +62,28 @@ public class IDXLoader {
 						int imgHeight = ByteBuffer.wrap(dataBuf,12,4).getInt();
 						data = new double[dataCount][imgWidth * imgHeight];
 						
-						for(int b = 0; b < dataBuf.length - offset; b++)
-							if(dataBuf[b+offset] == 0)
-								data[b / 784][b % 784] = 0;
-							else
-								data[b / 784][b % 784] = (dataBuf[b+offset] + 128) / 255D;
+						//TODO mit variabler größe arbeiten
+						for(int b = 0; b < dataBuf.length - offset; b++) {
+							//Daniels Mapping
+//							if(dataBuf[b+offset] == 0) {
+//								data[b / 784][b % 784] = 0;
+//							}
+//							else {
+//								data[b / 784][b % 784] = (dataBuf[b+offset] + 128) / 255D;
+//								
+//							}
+							
+							//Marcos Mapping
+							data[b / 784][b % 784] = map((dataBuf[b+offset] & 0xFF), 0, 255, -1, 1);
+	
+//							System.out.println(dataBuf[b+offset] + "-->" + (dataBuf[b+offset] & 0xFF)
+//									+ "-->" + data[b / 784][b % 784]);
+							
+//							System.out.println(dataBuf[b+offset] + "-->" + (dataBuf[b+offset] & 0xFF)
+//									+ "-->" + map((dataBuf[b+offset] & 0xFF), 0, 255, -1, 1));
+						}
+						
+						
 									
 						break;						
 					default:		
@@ -94,5 +111,22 @@ public class IDXLoader {
 				}				
 			}
 		}).start();
+	}
+	
+	
+	//Lineare Transformation
+	final static double EPSILON = 1e-12;
+	
+	public static double map(double valueCoord1,
+	        double startCoord1, double endCoord1,
+	        double startCoord2, double endCoord2) {
+
+	    if (Math.abs(endCoord1 - startCoord1) < EPSILON) {
+	        throw new ArithmeticException("/ 0");
+	    }
+
+	    double offset = startCoord2;
+	    double ratio = (endCoord2 - startCoord2) / (endCoord1 - startCoord1);
+	    return ratio * (valueCoord1 - startCoord1) + offset;
 	}
 }
