@@ -10,8 +10,8 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 	public void start(GUI gui, Network net, long iterations) {
 		
 		
-		IDXLoader labelLoader = new IDXLoader("H://train-labels.idx1-ubyte");
-		IDXLoader imageLoader = new IDXLoader("H://train-images.idx3-ubyte");
+		IDXLoader labelLoader = new IDXLoader("C://train-labels.idx1-ubyte");
+		IDXLoader imageLoader = new IDXLoader("C://train-images.idx3-ubyte");
 		
 		//TODO das hier besser machen lel
 		int[][] imageData;
