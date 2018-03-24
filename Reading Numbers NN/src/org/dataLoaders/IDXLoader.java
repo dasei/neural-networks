@@ -1,80 +1,98 @@
 package org.dataLoaders;
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class IDXLoader {
 	
-	private File file;
-	private FileInputStream fileIn;
+	private static ArrayList<double[][]> data = new ArrayList<double[][]>();
+	private static ArrayList<String> dataCategory = new ArrayList<String>();
+	private static ArrayList<Integer> dataLoadedProgress = new ArrayList<Integer>();
 	
-	private long pointer;
-	private byte[] data;
-	
-	public IDXLoader(String path) {
-		file = new File(path);
-		pointer = 0;		
+	public static void startLoadingData(String filePath, String dataCategory, int dataAmount, int valsPerData) {
+		data.add(new double[dataAmount][valsPerData]);
+		IDXLoader.dataCategory.add(dataCategory);
+		dataLoadedProgress.add(0);
+		
+		startLoadingData(dataCategory, new File(filePath));
 	}
 	
-	public int[][] getData(int amount) {
+	public static double[][] getData(String category){
+		return data.get(dataCategory.indexOf(category));
+	}
+	
+	public static int getDataAvailable(String category){
+		return dataLoadedProgress.get(dataCategory.indexOf(category));
+	}
+	
+	private static void startLoadingData(String category, File file) {
 		
-		int[][] data = null;
-		
-		//read file and save data
-		try {
-			fileIn = new FileInputStream(file);
-			
-			//check if its an image or label file
-			byte[] buf = new byte[4];
-			fileIn.read(buf);			
-			int magicNumber = ByteBuffer.wrap(buf).getInt();
-			
-			switch(magicNumber) {
-			case 2049:
-				//label file
-				fileIn.skip(4 + pointer);
+		(new Thread() {
+			public void run() {
+				long timeStart = System.currentTimeMillis();
 				
-				data = new int[amount][1];
-				break;
-				
-			case 2051:
-				//image file				
-				fileIn.skip(12 + (pointer*28*28));
-				
-				data = new int[amount][28 * 28];
-				break;
-				
-			default:		
-				//invalid magic number
-				System.err.println("invalid 'magic number' in idx file: '" + file.getAbsolutePath() + "'");
-				return null;
-			}
-			
-			pointer += amount;
-			
-			// read and put data into data array
-			int b;
-			for(int i = 0; i < data.length; i++) {
-				for(int j = 0; j < data[0].length; j++) {
-					b = fileIn.read();
-					if(b >= 0)
-						data[i][j] = b;
-					else {
-						//System.out.println("end of file has been reached, check for false training data");
-						pointer = 0;
-						fileIn.close();
-						fileIn = new FileInputStream(file);
+				//read file and save data
+				try {
+					
+					byte[] dataBuf = Files.readAllBytes(Paths.get(file.getPath()));
+					
+					//check if its an image or label file
+					int magicNumber = ByteBuffer.wrap(dataBuf,0,4).getInt();					
+					int dataCount = ByteBuffer.wrap(dataBuf,4,4).getInt();					
+					
+					double[][] data = IDXLoader.data.get(dataCategory.indexOf(category));
+					int offset;
+					switch(magicNumber) {
+					case 2049:						
+						//label file
+						offset = 8;
+						data = new double[dataCount][10];
+						
+						for(int label = 0; label < data.length; label++)
+							data[label][dataBuf[label + offset]] = 1;
+						
+						break;
+					case 2051:
+						//image file
+						offset = 16;
+						
+						int imgWidth = ByteBuffer.wrap(dataBuf,8,4).getInt();
+						int imgHeight = ByteBuffer.wrap(dataBuf,12,4).getInt();
+						data = new double[dataCount][imgWidth * imgHeight];
+						
+						for(int b = 0; b < dataBuf.length - offset; b++)
+							if(dataBuf[b+offset] == 0)
+								data[b / 784][b % 784] = 0;
+							else
+								data[b / 784][b % 784] = (dataBuf[b+offset] + 128) / 255D;
+									
+						break;						
+					default:		
+						//invalid magic number
+						System.err.println("invalid 'magic number' in idx file: '" + file.getAbsolutePath() + "'");
+						return;
 					}
-				}
+						
+					dataLoadedProgress.set(dataCategory.indexOf(category), data.length);
+					IDXLoader.data.set(dataCategory.indexOf(category), data);
+					
+					System.out.println("time used for loading file: '" + file.getName() + "' (ms): " + (System.currentTimeMillis() - timeStart));
+					
+//					System.out.println("ar test: " + (data == IDXLoader.data.get(dataCategory.indexOf(category))));
+//					System.out.println("ar test: " + (data == IDXLoader.data.get(dataCategory.indexOf(category))));
+					
+//					for(int img = 0; img < data.length; img++)
+//						for(int px = 0; px < data[0].length; px++)
+//							System.out.println(data[img][px]);
+					
+					
+					
+				}catch(Exception e) {
+					e.printStackTrace();
+				}				
 			}
-			
-			fileIn.close();
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		return data;
+		}).start();
 	}
 }
