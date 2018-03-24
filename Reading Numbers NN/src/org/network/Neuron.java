@@ -5,11 +5,11 @@ import org.activationFunctions.Sigmoid;
 
 public class Neuron {
 
-	public static final double WEIGHT_DEFAULT_MIN = -5;
-	public static final double WEIGHT_DEFAULT_MAX = 5;
-
-	public static final double BIAS_DEFAULT_MIN = -5;
-	public static final double BIAS_DEFAULT_MAX = 5;
+//	public static final double WEIGHT_DEFAULT_MIN = -5;
+//	public static final double WEIGHT_DEFAULT_MAX = 5;
+//
+//	public static final double BIAS_DEFAULT_MIN = -5;
+//	public static final double BIAS_DEFAULT_MAX = 5;
 
 	private double bias;
 	private double[] weights;
@@ -28,16 +28,18 @@ public class Neuron {
 		weights = new double[network.getAmountOfNeuronsInHiddenLayer(this.layerHidden - 1)];
 
 		if (randomizeValues) {
-			randomizeWeights(WEIGHT_DEFAULT_MIN, WEIGHT_DEFAULT_MAX);
+			randomizeWeights();
 
 			// bias
-			bias = (Math.random() * (BIAS_DEFAULT_MAX - BIAS_DEFAULT_MIN)) + BIAS_DEFAULT_MIN;
+			bias = normalverteilung(0,1);
 		}
 	}
 
-	private void randomizeWeights(double min, double max) {
-		for (int w = 0; w < weights.length; w++)
-			weights[w] = (Math.random() * (max - min)) + min;
+	private void randomizeWeights() {
+		for (int w = 0; w < weights.length; w++) {
+			weights[w] = normalverteilung(0, 1);
+			
+		}
 	}
 
 	public double generateOutput(double[] inputs) {
@@ -99,5 +101,28 @@ public class Neuron {
 
 	public ActivationFunction getActivationFunction() {
 		return this.activationFunction;
+	}
+	
+	//Berechnet normalverteilte Zufallszahlen nach der Polar-Methode
+	public static double normalverteilung(double erwartungswert, double standartabweichung) {
+		
+		double u, v, q, p;
+		do {
+			//Erzeuge zwei linearverteilte Zufallszahlen u und v
+			u = 2 * Math.random() - 1;
+			v = 2 * Math.random() - 1;
+			//Berechne q = u² + v²
+			q = u * u + v * v;
+			//Wenn q nicht element aus ]0;1[, wiederhole
+		} while(q <= 0 || q >= 1);
+		
+		//Berechne den Faktor p
+		p = Math.sqrt((-2 * Math.log(q))/ q);
+		
+		//Erzeuge eine unabhängige standartnormalverteilte Zufallszahl
+		double x = u * p;
+		
+		//Lineare Transformation zu beliebig normalverteilten Zufallszahlen
+		return Math.sqrt(standartabweichung) * x + erwartungswert;
 	}
 }
