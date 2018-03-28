@@ -124,6 +124,7 @@ public class GUITrainer {
 	}
 	
 	public void abortAlgorithm() {
+		System.out.println("abort!");
 		this.trainingAlgorithm.abort();
 		this.busy = false;
 	}
