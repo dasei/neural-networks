@@ -9,4 +9,5 @@ public interface TrainingAlgorithm {
 	public void pause();
 	public void resume();
 	public void abort();
+	public void fitnessTest(GUI gui, Network net);
 }

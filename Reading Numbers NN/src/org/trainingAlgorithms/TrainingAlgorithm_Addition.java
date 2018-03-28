@@ -63,4 +63,8 @@ public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 	public void abort() {
 		
 	}
+	
+	public void fitnessTest(GUI gui, Network net) {
+		//TODO fitnessTest für Addition einbauen
+	}
 }

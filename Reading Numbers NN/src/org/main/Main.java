@@ -14,15 +14,15 @@ public class Main {
 	public static void main(String[] args) {
 		// test1();
 		// test2();
-
-		IDXLoader.startLoadingData("C://train-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES, 60000, 28 * 28);
-		IDXLoader.startLoadingData("C://train-labels.idx1-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_LABELS, 60000, 10);
-		
-		
 		
 		new GUI();
+
+		IDXLoader.startLoadingData("train-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES, 60000, 28 * 28);
+		IDXLoader.startLoadingData("train-labels.idx1-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_LABELS, 60000, 10);
 		
-		
+		IDXLoader.startLoadingData("t10k-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES_TEST, 10000, 28 * 28);
+		IDXLoader.startLoadingData("t10k-labels.idx1-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_LABELS_TEST, 10000, 10);
+
 	}
 	
 	public static void idxTest() {
