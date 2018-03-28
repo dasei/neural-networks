@@ -5,11 +5,11 @@ import org.activationFunctions.Sigmoid;
 
 public class Neuron {
 
-//	public static final double WEIGHT_DEFAULT_MIN = -5;
-//	public static final double WEIGHT_DEFAULT_MAX = 5;
-//
-//	public static final double BIAS_DEFAULT_MIN = -5;
-//	public static final double BIAS_DEFAULT_MAX = 5;
+	public static final double WEIGHT_DEFAULT_MIN = -5;
+	public static final double WEIGHT_DEFAULT_MAX = 5;
+
+	public static final double BIAS_DEFAULT_MIN = -5;
+	public static final double BIAS_DEFAULT_MAX = 5;
 
 	private double bias;
 	private double[] weights;
@@ -31,14 +31,15 @@ public class Neuron {
 			randomizeWeights();
 
 			// bias
-			bias = normalverteilung(0,1);
+			double range = Math.abs(BIAS_DEFAULT_MIN - BIAS_DEFAULT_MAX);
+			bias = (Math.random() * range) + BIAS_DEFAULT_MIN;
 		}
 	}
 
 	private void randomizeWeights() {
 		for (int w = 0; w < weights.length; w++) {
-			weights[w] = normalverteilung(0, 1);
-			
+			double range = Math.abs(WEIGHT_DEFAULT_MIN - WEIGHT_DEFAULT_MAX);
+			weights[w] = (Math.random() * range) + WEIGHT_DEFAULT_MIN;
 		}
 	}
 
