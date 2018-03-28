@@ -12,8 +12,11 @@ import org.trainingAlgorithms.TrainingAlgorithm_ReadingNumbers;
 public class Main {
 
 	public static void main(String[] args) {
-		// test1();
-		// test2();
+		
+		// Daniels krasser Rechner: 1.5 Mille in 2 Minuten
+		// Marcos Pupsi: 336 Tausend in 2 Minuten
+		
+		
 		
 		new GUI();
 
