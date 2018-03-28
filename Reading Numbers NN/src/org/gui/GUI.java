@@ -27,7 +27,6 @@ import javax.swing.SwingUtilities;
 
 import org.activationFunctions.ActivationFunction;
 import org.network.Network;
-import org.trainingAlgorithms.TrainingAlgorithm_ReadingNumbers;
 
 import com.sun.glass.events.KeyEvent;
 
@@ -504,7 +503,7 @@ public class GUI extends JFrame {
 				JButton bTIterations = new JButton("cycles");
 				bTIterations.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						onButtonClickTrainIterations();
+						onButtonClickTrainIterations();						
 					}
 				});
 				pTIterationButton.add(bTIterations);

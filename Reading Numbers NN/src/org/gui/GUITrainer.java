@@ -27,7 +27,6 @@ public class GUITrainer {
 	 * train network via algorithm
 	 */
 	public void startTraining(Network net, long iterations) {
-		System.out.println(state);
 		if(trainingAlgorithm == null) {
 			return;
 		}
@@ -107,33 +106,6 @@ public class GUITrainer {
 		}
 	}
 	
-	public boolean isCurrentlyTraining() {
-		return (state != TrainingState.WAITING);
-	}
-	
-	public void pauseOrResume() {
-		if(this.isCurrentlyTraining() && state != TrainingState.FITNESS && 
-				state != TrainingState.FITNESS_ON_PAUSE) {
-			if(state == TrainingState.PAUSED) {
-				state = TrainingState.TRAINING;
-				trainingAlgorithm.resume();
-			}else {				
-				state = TrainingState.PAUSED;
-				trainingAlgorithm.pause();			
-			}
-		}
-	}
-	
-	public boolean isPaused() {
-		return (state == TrainingState.PAUSED);
-	}
-	
-	public void abortAlgorithm() {
-		System.out.println("abort!");
-		this.trainingAlgorithm.abort();
-		this.state = TrainingState.WAITING;
-	}
-	
 	public void startFitness(Network net) {
 		if(trainingAlgorithm == null) {
 			return;
@@ -207,7 +179,37 @@ public class GUITrainer {
 		}
 	}
 	
+	public void pauseOrResume() {
+		if(this.isCurrentlyTraining() && state != TrainingState.FITNESS && 
+				state != TrainingState.FITNESS_ON_PAUSE) {
+			if(state == TrainingState.PAUSED) {
+				state = TrainingState.TRAINING;
+				trainingAlgorithm.resume();
+			}else {				
+				state = TrainingState.PAUSED;
+				trainingAlgorithm.pause();
+			}
+		}
+	}
+
+	public void abortAlgorithm() {
+		this.trainingAlgorithm.abort();
+		this.state = TrainingState.WAITING;
+	}
+
 	public void setTrainingAlgorithm(TrainingAlgorithm algo) {
 		this.trainingAlgorithm = algo;
+	}
+
+	public boolean isPaused() {
+		return (state == TrainingState.PAUSED);
+	}
+
+	public boolean isCurrentlyTraining() {
+		return (state != TrainingState.WAITING);
+	}
+	
+	public TrainingState getState() {
+		return this.state;
 	}
 }

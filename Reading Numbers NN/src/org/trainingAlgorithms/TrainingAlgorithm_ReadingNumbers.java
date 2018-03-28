@@ -45,6 +45,9 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			
 			
 			while(paused) {
+				if(this.abort)
+					break;
+				
 				try{
 					Thread.sleep(10);
 				}catch(Exception e) {}
