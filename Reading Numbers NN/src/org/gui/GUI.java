@@ -80,6 +80,8 @@ public class GUI extends JFrame {
 
 	private static final int DEFAULT_RIGID_AREA_SIZE = 15;
 
+	private static final Color COLOR_DARK_GREEN = new Color(0,102,0); 
+	
 	// @formatter:off
 	public GUI() {
 		
@@ -91,7 +93,7 @@ public class GUI extends JFrame {
 		this.setResizable(true);
 		
 		Font fontHeaderBig = new Font("arial", Font.BOLD, 25);
-		Font fontHeaderSmall = new Font("arial", Font.BOLD, 20);
+//		Font fontHeaderSmall = new Font("arial", Font.BOLD, 20);
 		Font fontConsolasDefault = new Font("consolas", Font.PLAIN, 12);
 
 // -------------------------------------------------------------------------------------------------MENU BAR----------------------------------
@@ -419,8 +421,7 @@ public class GUI extends JFrame {
 			
 			
 			lEFStatus = new JLabel();
-			lEFStatus.setVisible(false);
-			lEFStatus.setForeground(Color.gray);
+			lEFStatus.setVisible(false);			
 			lEFStatus.setAlignmentX(Container.CENTER_ALIGNMENT);
 			pExport.add(lEFStatus);
 			
@@ -517,7 +518,7 @@ public class GUI extends JFrame {
 			pTrain.add(lTIterationsError);			
 			
 			
-			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+//			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
 			
 			
 			JPanel pTPauseAbort = new JPanel();
@@ -911,12 +912,24 @@ public class GUI extends JFrame {
 	}
 
 	private void onButtonClickEF() {
+		lEFStatus.setVisible(false);
+		
 		if (txtEFName.getText().equals("")) {
-			// TODO alles :3
+			lEFStatus.setForeground(Color.RED);
+			lEFStatus.setText("name musn't be empty");
+			lEFStatus.setVisible(true);
 			return;
 		}
 
+		if(!(trainer.isPaused() || !trainer.isCurrentlyTraining())) {
+			lEFStatus.setForeground(Color.RED);
+			lEFStatus.setText("Cannot export Network while its being trained. Please pause Training");
+			lEFStatus.setVisible(true);
+			return;
+		}
+		
 		if (Network.exportToFile(network, new File(txtEFName.getText() + ".txt"))) {
+			lEFStatus.setForeground(COLOR_DARK_GREEN);
 			lEFStatus.setText("exported successfully");
 			lEFStatus.setVisible(true);
 		}

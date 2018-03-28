@@ -157,6 +157,7 @@ public class GUITrainer {
 	
 	public void abortAlgorithm() {
 		this.trainingAlgorithm.abort();
+		this.currentlyTraining = false;
 	}
 	
 	public void startFitness(Network net, TrainingAlgorithm trainingAlgorithm) {
