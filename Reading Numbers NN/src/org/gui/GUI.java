@@ -57,6 +57,7 @@ public class GUI extends JFrame {
 	private JTextField txtIFName;
 	private JLabel lIFNameError;
 	private JLabel lIFInspect;
+	private JLabel lIFMainStatus;
 
 	// 'export file' panel (EF = export file)
 	private JTextField txtEFName;
@@ -349,6 +350,16 @@ public class GUI extends JFrame {
 			pImport.add(lIFInspect);
 			
 			
+			pImport.add(Box.createRigidArea(new Dimension(0, DEFAULT_RIGID_AREA_SIZE)));
+			
+			
+			lIFMainStatus = new JLabel();
+			lIFMainStatus.setVisible(false);
+			lIFMainStatus.setForeground(Color.red);
+			lIFMainStatus.setAlignmentX(Container.CENTER_ALIGNMENT);
+			pImport.add(lIFMainStatus);
+			
+			
 			pImport.add(Box.createRigidArea(new Dimension(0,9000)));
 // --	
 		pMainCard.add(pImport, CARDTYPE_IMPORTFILE);
@@ -508,6 +519,29 @@ public class GUI extends JFrame {
 			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
 			
 			
+			JPanel pTPauseAbort = new JPanel();
+			pTPauseAbort.setAlignmentX(Container.CENTER_ALIGNMENT);
+				JButton bTPause = new JButton("pause/resume");			
+				bTPause.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						trainer.pauseOrResume();
+					}
+				});
+				pTPauseAbort.add(bTPause);
+				
+				JButton bTAbort = new JButton("abort");			
+				bTAbort.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						trainer.abortAlgorithm();
+					}
+				});
+				pTPauseAbort.add(bTAbort);
+			pTrain.add(pTPauseAbort);
+			
+			
+			
+			pTrain.add(Box.createRigidArea(new Dimension(0,DEFAULT_RIGID_AREA_SIZE)));
+			
 			
 			lTIterationInfo = new JLabel("");
 			lTIterationInfo.setFont(fontConsolasDefault);
@@ -567,7 +601,8 @@ public class GUI extends JFrame {
 		switchMainPanelTo(CARDTYPE_IMPORTFILE);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				txtIFName.grabFocus();
+				lIFMainStatus.setVisible(false);
+				txtIFName.grabFocus();			
 			}
 		});
 	}
@@ -595,6 +630,15 @@ public class GUI extends JFrame {
 	}
 
 	private void onButtonClickCNFAndImport() {
+		lCNFMainError.setVisible(false);
+		
+		//if no network is being trained
+		if(trainer.isCurrentlyTraining()) {
+			lCNFMainError.setText("Cannot import Network while another one is being trained");
+			lCNFMainError.setVisible(true);
+			return;
+		}
+		
 		if (onButtonClickCNF()) {
 			importNetwork(lastCreatedFile);
 		}
@@ -801,6 +845,14 @@ public class GUI extends JFrame {
 
 	private void onButtonClickIF() {
 		lIFNameError.setVisible(false);
+		lIFMainStatus.setVisible(false);
+		
+		if(trainer.isCurrentlyTraining()) {
+			lIFMainStatus.setForeground(Color.RED);
+			lIFMainStatus.setText("Cannot import Network while another one is being trained");
+			lIFMainStatus.setVisible(true);	
+			return;
+		}
 
 		String name = txtIFName.getText();
 		if (name.equals("")) {
@@ -819,6 +871,10 @@ public class GUI extends JFrame {
 
 		if (importNetwork(file)) {
 			txtTLearningRate.setText(network.getLearningRate() + "");
+			
+			lIFMainStatus.setForeground(Color.GREEN);
+			lIFMainStatus.setText("Imported successfully");
+			lIFMainStatus.setVisible(true);			
 		}
 	}
 

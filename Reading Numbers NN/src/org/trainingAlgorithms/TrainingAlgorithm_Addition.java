@@ -5,7 +5,10 @@ import org.network.Network;
 
 public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 
-	public void start(GUI gui, Network net, long iterations) {
+	private boolean paused = false;
+	private boolean abort = false;
+	
+	public void run(GUI gui, Network net, long iterations) {
 		long iterationCn = 0;
 
 		double[] inputs = new double[2];
@@ -30,6 +33,16 @@ public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 			}
 
 			iterationCn++;
+			
+			while(paused) {
+				try{
+					Thread.sleep(10);
+				}catch(Exception e) {}
+			}
+			
+			if(this.abort) {
+				break;
+			}
 		}
 
 		testOutput = net.feedForward(new double[] { 3, 4 })[0];
@@ -37,5 +50,17 @@ public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 				"3 + 4 = ", testOutput + "", "= " + (int) Math.round(testOutput));
 
 //		System.out.println("finished!");
+	}
+	
+	public void pause() {
+		
+	}
+	
+	public void resume() {
+		
+	}
+	
+	public void abort() {
+		
 	}
 }

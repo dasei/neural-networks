@@ -11,10 +11,11 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 	
 	private double errorSum;
 	private int outputtedNumber;
-	
+	private boolean paused = false;
+	private boolean abort = false;
 	
 	@Override
-	public void start(GUI gui, Network net, long iterations) {
+	public void run(GUI gui, Network net, long iterations) {
 		
 //		IDXLoader labelLoader = new IDXLoader("H://train-labels.idx1-ubyte");
 //		IDXLoader imageLoader = new IDXLoader("H://train-images.idx3-ubyte");
@@ -59,6 +60,18 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			if(dataPointer >= dataAvailable) {
 				dataPointer = 0;
 			}
+			
+			
+			while(paused) {
+				try{
+					Thread.sleep(10);
+				}catch(Exception e) {}
+			}
+			
+			if(this.abort) {
+				break;
+			}
+			
 		}
 		
 		System.out.println("Fitness: " + (fitnessSum / (iterations + 0.0)));
@@ -98,6 +111,18 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 		}
 //		System.out.println("INDEX: " + index);
 		return index;
+	}
+	
+	public void pause() {
+		this.paused = true;
+	}
+	
+	public void resume() {
+		this.paused = false;
+	}
+	
+	public void abort() {
+		this.abort = true;
 	}
 	
 //	public class ImageDataSet extends DataSet{

@@ -5,5 +5,8 @@ import org.network.Network;
 
 public interface TrainingAlgorithm {
 
-	public void start(GUI gui, Network net, long iterations);
+	public void run(GUI gui, Network net, long iterations);
+	public void pause();
+	public void resume();
+	public void abort();
 }

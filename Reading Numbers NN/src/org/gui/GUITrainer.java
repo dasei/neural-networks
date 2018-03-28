@@ -8,6 +8,7 @@ public class GUITrainer {
 	private GUI gui;
 
 	private boolean currentlyTraining = false;
+	private boolean paused;
 	private long trainingCyclesLeft;
 
 	private boolean workingWithAlgorithm;
@@ -79,7 +80,7 @@ public class GUITrainer {
 			if (workingWithAlgorithm) {
 				// TODO alles xD
 
-				trainingAlgorithm.start(gui, net, trainingCyclesLeft);
+				trainingAlgorithm.run(gui, net, trainingCyclesLeft);
 
 			} else {
 
@@ -132,5 +133,29 @@ public class GUITrainer {
 
 			currentlyTraining = false;
 		}
+	}
+	
+	public boolean isCurrentlyTraining() {
+		return this.currentlyTraining;
+	}
+	
+	public void pauseOrResume() {
+		if(this.isCurrentlyTraining()) {
+			if(this.isPaused()) {
+				paused = false;
+				trainingAlgorithm.resume();
+			}else {				
+				paused = true;
+				trainingAlgorithm.pause();			
+			}
+		}
+	}
+	
+	public boolean isPaused() {
+		return this.paused;
+	}
+	
+	public void abortAlgorithm() {
+		this.trainingAlgorithm.abort();
 	}
 }
