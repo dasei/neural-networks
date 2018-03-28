@@ -564,7 +564,7 @@ public class GUI extends JFrame {
 			bTFitness.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					//TODO Modular gestalten
-					trainer.startFitness(network, new TrainingAlgorithm_ReadingNumbers());
+					onButtonClickTCalcFitness();
 				}
 			});
 			bTFitness.setAlignmentX(CENTER_ALIGNMENT);
@@ -702,6 +702,18 @@ public class GUI extends JFrame {
 		// System.out.println("LR: " + learningRate);
 
 		trainNetwork(iterations);
+	}
+	
+	private void onButtonClickTCalcFitness() {
+//		lTInfo.setVisible(false);
+		if(!trainer.isCurrentlyTraining() || trainer.isPaused())
+			trainer.startFitness(network, new TrainingAlgorithm_ReadingNumbers());
+//		else {
+//			
+//			lTInfo.setForeground(Color.red);
+//			lTInfo.setText("cannot calculate fitness while Network is being trained");			
+//			lTInfo.setVisible(true);
+//		}
 	}
 
 	////////
