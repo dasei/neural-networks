@@ -13,6 +13,10 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+
+		// Daniels krasser Rechner: 1.5 Mille in 2 Minuten
+		// Marcos Pupsi: 336 Tausend in 2 Minuten
+		
 		new GUI();
 
 		IDXLoader.startLoadingData("train-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES, 60000, 28 * 28);

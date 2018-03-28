@@ -702,6 +702,18 @@ public class GUI extends JFrame {
 
 		trainNetwork(iterations);
 	}
+	
+//	private void onButtonClickTCalcFitness() {
+////		lTInfo.setVisible(false);
+//		if(!trainer.isCurrentlyTraining() || trainer.isPaused())
+//			trainer.startFitness(network, new TrainingAlgorithm_ReadingNumbers());
+////		else {
+////			
+////			lTInfo.setForeground(Color.red);
+////			lTInfo.setText("cannot calculate fitness while Network is being trained");			
+////			lTInfo.setVisible(true);
+////		}
+//	}
 
 	////////
 	////////// onButton clicks
