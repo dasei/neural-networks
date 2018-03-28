@@ -9,6 +9,7 @@ public class GUITrainer {
 
 	private boolean currentlyTraining = false;
 	private long trainingCyclesLeft;
+	private long testCyclesLeft;
 
 	private boolean workingWithAlgorithm;
 	private TrainingAlgorithm trainingAlgorithm;
@@ -36,17 +37,17 @@ public class GUITrainer {
 		}
 	}
 
-	// private volatile Network currentNetwork;
 	private double[][] trainingDataInputs;
 	private double[][] trainingDataOutputsExpected;
+	
+	private double[][] testDataInputs;
+	private double[][] testDataOutputsExpected;
 
 	/**
 	 * traing network via inputs and outputs (manually)
 	 */
 	public void startTraining(Network net, int iterations, double[][] inputValues, double[][] expectedOutputs) {
 		// System.out.println(net);
-		// TODO what if another network is passed into this function; should the
-		// current training be stopped?
 		if (!this.currentlyTraining) {
 			this.currentlyTraining = true;
 			this.workingWithAlgorithm = false;
@@ -77,7 +78,6 @@ public class GUITrainer {
 			this.setName("GUI Network Trainer Thread");
 
 			if (workingWithAlgorithm) {
-				// TODO alles xD
 
 				trainingAlgorithm.start(gui, net, trainingCyclesLeft);
 
@@ -130,6 +130,63 @@ public class GUITrainer {
 
 			}
 
+			currentlyTraining = false;
+		}
+	}
+	
+	public void startFitness(Network net, TrainingAlgorithm trainingAlgorithm) {
+		if(!currentlyTraining) {
+			this.currentlyTraining = true;
+			this.workingWithAlgorithm = true;
+			this.trainingAlgorithm = trainingAlgorithm;
+			
+			new FitnessThread(net).start();
+		}else {
+			System.out.println("FitnessTest didn't start because Training is already running");
+		}
+	}
+	
+	private class FitnessThread extends Thread{
+		private Network net;
+		public FitnessThread(Network net) {
+			super();
+			this.net = net;
+		}
+		
+		public void run() {
+			this.setName("Neural Network FitnessTest");
+			if(workingWithAlgorithm) {
+				trainingAlgorithm.fitnessTest(gui, net);
+			}
+			else {
+				long iterationsDone = 0;
+				int dataset;
+				int fitnessSum = 0;
+				// while loop for training manually
+				while (testCyclesLeft > 0) {
+
+					dataset = (int) (iterationsDone % testDataInputs.length);
+
+					double[] netOut = net.feedForward(trainingDataInputs[dataset]);
+					boolean wasRight = true;
+					for(int i = 0; i < testDataOutputsExpected.length; i++) {
+						if(!(netOut[i] == testDataOutputsExpected[dataset][i])) {
+							wasRight = false;
+						}
+					}
+					
+					if(wasRight) {
+						fitnessSum++;
+					}
+					
+					testCyclesLeft--;
+					iterationsDone++;
+				}
+				
+				//TODO in GUI einbauen
+				System.out.println("Fitness: " + (fitnessSum + 0.0)/iterationsDone);
+			}
+			
 			currentlyTraining = false;
 		}
 	}

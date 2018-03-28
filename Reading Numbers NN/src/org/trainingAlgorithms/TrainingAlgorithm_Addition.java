@@ -38,4 +38,8 @@ public class TrainingAlgorithm_Addition implements TrainingAlgorithm {
 
 //		System.out.println("finished!");
 	}
+	
+	public void fitnessTest(GUI gui, Network net) {
+		//TODO fitnessTest für Addition einbauen
+	}
 }

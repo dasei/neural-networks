@@ -6,4 +6,5 @@ import org.network.Network;
 public interface TrainingAlgorithm {
 
 	public void start(GUI gui, Network net, long iterations);
+	public void fitnessTest(GUI gui, Network net);
 }

@@ -33,6 +33,7 @@ import com.sun.glass.events.KeyEvent;
 
 public class GUI extends JFrame {
 
+	private static final long serialVersionUID = -8728019602009029962L;
 	private volatile Network network;
 	private GUITrainer trainer;
 	private File networkDataFile;
@@ -524,6 +525,15 @@ public class GUI extends JFrame {
 			lTInfo.setAlignmentX(Container.CENTER_ALIGNMENT);
 			pTrain.add(lTInfo);
 			
+			JButton bTFitness = new JButton("Fitness überprüfen");
+			bTFitness.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					//TODO Modular gestalten
+					trainer.startFitness(network, new TrainingAlgorithm_ReadingNumbers());
+				}
+			});
+			bTFitness.setAlignmentX(CENTER_ALIGNMENT);
+			pTrain.add(bTFitness);
 			
 			
 // --
@@ -965,5 +975,68 @@ public class GUI extends JFrame {
 		lTErrorInfo.setText(errorInfo);
 		lTInfo.setText(info);
 
+	}
+	
+	public void updateFitnessProcess(long iterationsDone, long iterationsTotal, double currentFitness, String notePart1,
+			String notePart2, String notePart3) {
+		String iterationInfo = "Iteration: ";
+		String fitnessInfo = "Fitness: ";
+		String info = notePart1;
+
+		String iterationValue = iterationsDone + "/" + iterationsTotal;
+		String fitnessValue = currentFitness + "";
+		String infoValue = notePart2;
+
+		int maxStrLen = 30;
+		int maxStrLenTriple = 45;
+		int spaceLenIteration, spaceLenError, spaceLenInfo;
+
+		spaceLenIteration = maxStrLen - (iterationInfo.length() + iterationValue.length());
+		spaceLenError = maxStrLen - fitnessInfo.length() - fitnessValue.length();
+		spaceLenInfo = maxStrLen - info.length() - infoValue.length();
+
+		for (int i = 0; i < spaceLenIteration; i++)
+			iterationInfo += " ";
+		iterationInfo += iterationValue;
+
+		for (int i = 0; i < spaceLenError; i++)
+			fitnessInfo += " ";
+		fitnessInfo += fitnessValue;
+
+		for (int i = 0; i < spaceLenInfo; i++)
+			info += " ";
+		info += infoValue;
+
+		// the third part
+		iterationValue = ((int) (((double) iterationsDone / (double) iterationsTotal) * 1000000)) / 10000D + "%";
+		fitnessValue = ((int) (currentFitness * 1000000)) / 10000D + "%";
+		infoValue = notePart3;
+
+		spaceLenIteration = maxStrLenTriple - (iterationInfo.length() + iterationValue.length());
+		spaceLenError = maxStrLenTriple - fitnessInfo.length() - fitnessValue.length();
+		spaceLenInfo = maxStrLenTriple - info.length() - infoValue.length();
+
+		for (int i = 0; i < spaceLenIteration; i++)
+			iterationInfo += " ";
+		iterationInfo += iterationValue;
+
+		for (int i = 0; i < spaceLenError; i++)
+			fitnessInfo += " ";
+		fitnessInfo += fitnessValue;
+
+		for (int i = 0; i < spaceLenInfo; i++)
+			info += " ";
+		info += infoValue;
+
+		// lTIterationInfo.setText("<html>iterations: " + iterationsDone + "/" +
+		// iterationsTotal + "<br>error: "
+		// + currentError + "<br>" + note + "</html>");
+
+//		System.out.println(iterationInfo);
+//		System.out.println(errorInfo);
+//		System.out.println(info);
+		lTIterationInfo.setText(iterationInfo);
+		lTErrorInfo.setText(fitnessInfo);
+		lTInfo.setText(info);
 	}
 }

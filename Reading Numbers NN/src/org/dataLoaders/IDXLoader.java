@@ -60,27 +60,13 @@ public class IDXLoader {
 						
 						int imgWidth = ByteBuffer.wrap(dataBuf,8,4).getInt();
 						int imgHeight = ByteBuffer.wrap(dataBuf,12,4).getInt();
+						int pixelCount = imgWidth * imgHeight;
 						data = new double[dataCount][imgWidth * imgHeight];
 						
-						//TODO mit variabler größe arbeiten
 						for(int b = 0; b < dataBuf.length - offset; b++) {
-							//Daniels Mapping
-//							if(dataBuf[b+offset] == 0) {
-//								data[b / 784][b % 784] = 0;
-//							}
-//							else {
-//								data[b / 784][b % 784] = (dataBuf[b+offset] + 128) / 255D;
-//								
-//							}
 							
-							//Marcos Mapping
-							data[b / 784][b % 784] = map((dataBuf[b+offset] & 0xFF), 0, 255, -1, 1);
+							data[b / pixelCount][b % pixelCount] = map((dataBuf[b+offset] & 0xFF), 0, 255, -1, 1);
 	
-//							System.out.println(dataBuf[b+offset] + "-->" + (dataBuf[b+offset] & 0xFF)
-//									+ "-->" + data[b / 784][b % 784]);
-							
-//							System.out.println(dataBuf[b+offset] + "-->" + (dataBuf[b+offset] & 0xFF)
-//									+ "-->" + map((dataBuf[b+offset] & 0xFF), 0, 255, -1, 1));
 						}
 						
 						
