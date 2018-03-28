@@ -2,13 +2,13 @@ package org.gui;
 
 import org.network.Network;
 import org.trainingAlgorithms.TrainingAlgorithm;
+import org.trainingAlgorithms.TrainingAlgorithm_ReadingNumbers;
 
 public class GUITrainer {
 
 	private GUI gui;
 
-	private boolean currentlyTraining = false;
-	private boolean paused;
+	private TrainingState state;
 	private long trainingCyclesLeft;
 	private long testCyclesLeft;
 
@@ -18,18 +18,24 @@ public class GUITrainer {
 	public GUITrainer(GUI gui) {
 		// (trainerThread = new TrainerThread()).start();
 		this.gui = gui;
+		this.state = TrainingState.WAITING;
+		setTrainingAlgorithm(new TrainingAlgorithm_ReadingNumbers());
 		// new TrainerThread().start();
 	}
 
 	/**
 	 * train network via algorithm
 	 */
-	public void startTraining(Network net, long iterations, TrainingAlgorithm trainingAlgorithm) {
-		if (!this.currentlyTraining) {
-			this.currentlyTraining = true;
+	public void startTraining(Network net, long iterations) {
+		System.out.println(state);
+		if(trainingAlgorithm == null) {
+			return;
+		}
+		
+		if (state == TrainingState.WAITING) {
+			this.state = TrainingState.TRAINING;
 
 			this.workingWithAlgorithm = true;
-			this.trainingAlgorithm = trainingAlgorithm;
 			this.trainingCyclesLeft = iterations;
 
 			new TrainerThread(net).start();
@@ -48,9 +54,8 @@ public class GUITrainer {
 	 * traing network via inputs and outputs (manually)
 	 */
 	public void startTraining(Network net, int iterations, double[][] inputValues, double[][] expectedOutputs) {
-		// System.out.println(net);
-		if (!this.currentlyTraining) {
-			this.currentlyTraining = true;
+		if (state == TrainingState.WAITING) {
+			this.state = TrainingState.TRAINING;
 			this.workingWithAlgorithm = false;
 
 			this.trainingCyclesLeft = iterations;
@@ -131,43 +136,54 @@ public class GUITrainer {
 
 			}
 
-			currentlyTraining = false;
+			state = TrainingState.WAITING;
 		}
 	}
 	
 	public boolean isCurrentlyTraining() {
-		return this.currentlyTraining;
+		return (state != TrainingState.WAITING);
 	}
 	
 	public void pauseOrResume() {
-		if(this.isCurrentlyTraining()) {
-			if(this.isPaused()) {
-				paused = false;
+		if(this.isCurrentlyTraining() && state != TrainingState.FITNESS && 
+				state != TrainingState.FITNESS_ON_PAUSE) {
+			if(state == TrainingState.PAUSED) {
+				state = TrainingState.TRAINING;
 				trainingAlgorithm.resume();
 			}else {				
-				paused = true;
+				state = TrainingState.PAUSED;
 				trainingAlgorithm.pause();			
 			}
 		}
 	}
 	
 	public boolean isPaused() {
-		return this.paused;
+		return (state == TrainingState.PAUSED);
 	}
 	
 	public void abortAlgorithm() {
 		this.trainingAlgorithm.abort();
-		this.currentlyTraining = false;
+		this.state = TrainingState.WAITING;
 	}
 	
-	public void startFitness(Network net, TrainingAlgorithm trainingAlgorithm) {
-		if(!currentlyTraining) {
-			this.currentlyTraining = true;
+	public void startFitness(Network net) {
+		if(trainingAlgorithm == null) {
+			return;
+		}
+		
+		if(state == TrainingState.WAITING) {
+			state = TrainingState.FITNESS;
 			this.workingWithAlgorithm = true;
-			this.trainingAlgorithm = trainingAlgorithm;
 			
 			new FitnessThread(net).start();
-		}else {
+		} 
+		else if(state == TrainingState.PAUSED) {
+			state =TrainingState.FITNESS_ON_PAUSE;
+			this.workingWithAlgorithm = true;
+			
+			new FitnessThread(net).start();
+		}
+		else {
 			System.out.println("FitnessTest didn't start because Training is already running");
 		}
 	}
@@ -213,7 +229,16 @@ public class GUITrainer {
 				System.out.println("Fitness: " + (fitnessSum + 0.0)/iterationsDone);
 			}
 			
-			currentlyTraining = false;
+			if(state == TrainingState.FITNESS) {
+				state = TrainingState.WAITING;
+			}
+			else if(state == TrainingState.FITNESS_ON_PAUSE) {
+				state = TrainingState.PAUSED;
+			}
 		}
+	}
+	
+	public void setTrainingAlgorithm(TrainingAlgorithm algo) {
+		this.trainingAlgorithm = algo;
 	}
 }

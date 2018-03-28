@@ -563,8 +563,7 @@ public class GUI extends JFrame {
 			JButton bTFitness = new JButton("Fitness überprüfen");
 			bTFitness.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					//TODO Modular gestalten
-					trainer.startFitness(network, new TrainingAlgorithm_ReadingNumbers());
+					trainer.startFitness(network);
 				}
 			});
 			bTFitness.setAlignmentX(CENTER_ALIGNMENT);
@@ -978,7 +977,7 @@ public class GUI extends JFrame {
 	private void trainNetwork(long iterations) {
 
 //		trainer.startTraining(network, iterations, new TrainingAlgorithm_Addition());
-		trainer.startTraining(network, iterations, new TrainingAlgorithm_ReadingNumbers());
+		trainer.startTraining(network, iterations);
 
 	}
 

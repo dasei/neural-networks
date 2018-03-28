@@ -51,6 +51,8 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			}
 			
 			if(this.abort) {
+				this.abort = false;
+				this.paused = false;
 				break;
 			}
 			

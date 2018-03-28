@@ -13,11 +13,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		// Daniels krasser Rechner: 1.5 Mille in 2 Minuten
-		// Marcos Pupsi: 336 Tausend in 2 Minuten
-		
-		
-		
 		new GUI();
 
 		IDXLoader.startLoadingData("train-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES, 60000, 28 * 28);
@@ -28,35 +23,6 @@ public class Main {
 
 	}
 	
-	public static void idxTest() {
-		
-//		IDXLoader loaderLabel = new IDXLoader("H://train-labels.idx1-ubyte");
-//		IDXLoader loaderImage = new IDXLoader("H://train-images.idx3-ubyte");
-//		
-//		System.out.println("hello?");
-//		
-////		for(byte b : loaderImage.getData(1)) {
-////			System.out.println(b);			
-////		}
-//		
-//		loaderLabel.getData(6);
-//		loaderImage.getData(6);
-//		
-//		
-//		int[] dataLabel = loaderLabel.getData(6);
-//		int[] dataImg = loaderImage.getData(6);
-//		
-//		for(int b : dataLabel) {
-//			System.out.println(b);			
-//		}
-//
-//		IDXImageInterpreter.showImage(dataImg, 28);
-//		
-////		for(byte b : loader.getData(5)) {			
-////			System.out.println(b);			
-////		}
-		
-	}
 
 	public static void guiTest() {
 		new GUI();
