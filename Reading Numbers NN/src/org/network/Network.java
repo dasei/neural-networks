@@ -20,13 +20,15 @@ public class Network {
 	private double[][] neuronSumValues;
 	// private int activationMode;
 	private double learningRate;
+	
+	private int dimensions;
 
 	// private ActivationFunction activationFunction;
 
 	// public static final int ACTIVATION_SIGMOID = 0;
 	// public static final int ACTIVATION_RELU = 1;
 	// public static final int ACTIVATION_LEAKY_RELU = 2;
-	public static final double DEFAULT_LEARNING_RATE = 0.1;
+	public static final double DEFAULT_LEARNING_RATE = 1;
 
 	//////
 	//////// generate Network randomly
@@ -93,6 +95,18 @@ public class Network {
 		for (int layer = 0; layer < neurons.length; layer++) {
 			neuronSumValues[layer] = new double[neurons[layer].length];
 		}
+		
+		recalculateDimensions();
+		
+	}
+	
+	private void recalculateDimensions() {
+		//Get the amount of dimensions in gradient vector (weights + biases)
+		for(int layer = 0; layer < neurons.length; layer++) {
+			for(int neuron = 0; neuron < neurons[layer].length; neuron++) {
+				dimensions += neurons[layer][neuron].getAmountOfWeights() + 1;
+			}
+		}
 	}
 
 	////////////
@@ -152,6 +166,8 @@ public class Network {
 			e.printStackTrace();
 			throw e;
 		}
+		
+		newNetwork.recalculateDimensions();
 
 		return newNetwork;
 	}
@@ -305,21 +321,6 @@ public class Network {
 						dActivation = neurons[layer + 1][nextLayerNeuron].getActivationFunction()
 								.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
 
-						// switch (activationMode) {
-						// case ACTIVATION_SIGMOID: dActivation =
-						// MathFunctions.derivativeSigmoid(
-						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// case ACTIVATION_RELU: dActivation =
-						// MathFunctions.derivativeRelu(
-						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// case ACTIVATION_LEAKY_RELU: dActivation =
-						// MathFunctions.derivativeLeakyRelu(
-						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// default: dActivation =
-						// MathFunctions.derivativeSigmoid(
-						// neuronSumValues[layer + 1][nextLayerNeuron]); break;
-						// }
-
 						// add to the sum
 						sum += connectingWeight * dActivation * neuronDerivativeValues[layer + 1][nextLayerNeuron];
 					}
@@ -367,9 +368,106 @@ public class Network {
 				neurons[layer][n].setBias(neurons[layer][n].getBias() + biasCorrection);
 			}
 		}
-
 	}
 
+	private void backpropagateNormalized(double[] expectedOutputs, double[] inputValues) {
+		
+		double[] gradient = new double[dimensions];
+		//The Index the current weight/bias is stored in gradient
+		int gradientIndex = 0;
+		
+		// loop backwards through all neurons and memoize their derivatives
+		for (int layer = neurons.length - 1; layer >= 0; layer--) {
+			for (int n = 0; n < neurons[layer].length; n++) {
+
+				// if neuron is outputNeuron
+				if (layer == neurons.length - 1) {
+					// store the derivative of the cost-function over this
+					// neurons output
+					neuronDerivativeValues[layer][n] = 2 * (neuronValues[layer][n] - expectedOutputs[n]);
+
+				} else {
+					// Take the sum over the next layer of their derivatives
+					// over your output
+					double sum = 0;
+					for (int nextLayerNeuron = 0; nextLayerNeuron < neurons[layer + 1].length; nextLayerNeuron++) {
+						// get the weigth that connects this neuron with
+						// nextLayerNeuron
+						double connectingWeight = neurons[layer + 1][nextLayerNeuron].getWeights()[n];
+
+						// get the derivative of the activation over
+						// nextLayerNeurons
+						// sum z
+						double dActivation;
+						// Get the right derivative function according to
+						// activationMode
+
+						dActivation = neurons[layer + 1][nextLayerNeuron].getActivationFunction()
+								.derivative(neuronSumValues[layer + 1][nextLayerNeuron]);
+
+						// add to the sum
+						sum += connectingWeight * dActivation * neuronDerivativeValues[layer + 1][nextLayerNeuron];
+					}
+					neuronDerivativeValues[layer][n] = sum;
+				}
+
+				// update its weights and its bias
+				// Get the derivative of activation over the sum z of this
+				// neuron
+				double dActivation;
+
+				// Get the right derivative function according to activationMode
+				dActivation = neurons[layer][n].getActivationFunction().derivative(neuronSumValues[layer][n]);
+
+
+				// generate gradient for gradient descent
+				for (int weight = 0; weight < neurons[layer][n].getAmountOfWeights(); weight++) {
+					// dC/dw = value of previous neuron * sigmoid' of its own
+					// sum * dC/dValue
+					// gradient = - (dC/dw)
+					double previousValue;
+
+					if (layer != 0) {
+						previousValue = neuronValues[layer - 1][weight];
+					} else {
+						previousValue = inputValues[weight];
+					}
+
+					gradient[gradientIndex] = -1 * previousValue * dActivation * neuronDerivativeValues[layer][n]
+							* learningRate;
+					
+					gradientIndex++;
+
+				}
+				
+
+//				// generate new bias for neuron (-1 from derivative and gradient
+//				// should eliminate)
+				gradient[gradientIndex] = dActivation * neuronDerivativeValues[layer][n] * learningRate;
+				gradientIndex++;
+				
+			}
+		}
+		
+		//Normalize gradient-vector
+		gradient = normalizeVector(gradient);
+		//loop through every neuron and correct weights/biases according to gradient and error
+		gradientIndex = 0;
+		double error = calcError(expectedOutputs);
+		for (int layer = neurons.length - 1; layer >= 0; layer--) {
+			for (int n = 0; n < neurons[layer].length; n++) {
+				for(int weight = 0; weight < neurons[layer][n].getAmountOfWeights(); weight++) {
+					neurons[layer][n].setWeight(weight,
+							neurons[layer][n].getWeights()[weight] + (gradient[gradientIndex] * error * learningRate));
+					gradientIndex++;
+				}
+				neurons[layer][n].setBias(neurons[layer][n].getBias() + gradient[gradientIndex] * error * learningRate);
+				gradientIndex++;
+			}
+		}
+		
+	}
+	
 	public void setBiasOfNeuron(int hiddenLayer, int neuron, double newValue) {
 		neurons[hiddenLayer][neuron].setBias(newValue);
 	}
@@ -378,6 +476,12 @@ public class Network {
 	public double[] train(double[] inputValues, double[] expectedOutputs) {
 		double[] output = feedForward(inputValues);
 		backpropagate(expectedOutputs, inputValues);
+		return output;
+	}
+	
+	public double[] trainNormalized(double[] inputValues, double[] expectedOutputs) {
+		double[] output = feedForward(inputValues);
+		backpropagateNormalized(expectedOutputs, inputValues);
 		return output;
 	}
 
@@ -418,31 +522,6 @@ public class Network {
 		neurons[hiddenLayer][n].setActivationFunction(f);
 	}
 
-	////////
-	////////// DEBUG
-	////////
-
-//	public double getErrorForAddition() {
-//
-//		if (this.inputNeuronsAmount == 2 && this.neurons[this.neurons.length - 1].length == 1) {
-//
-//			int x1, x2;
-//			int iterations = 100;
-//			double errorSum = 0;
-//			for (int i = 0; i < iterations; i++) {
-//				x1 = (int) (Math.random() * 100 - 50);
-//				x2 = (int) (Math.random() * 100 - 50);
-//				errorSum += Math.pow((x1 + x2) - this.feedForward(new double[] { x1, x2 })[0], 2);
-//			}
-//
-//			return errorSum / iterations;
-//
-//		} else {
-//			System.out.println(
-//					"couldnt get error for addition, because network didnt have 2 inputs neurons and/or 1 output neuron");
-//			return 0;
-//		}
-//	}
 
 	public int[] getLayout() {
 		int[] layout = new int[neurons.length + 1];
@@ -451,6 +530,30 @@ public class Network {
 			layout[i] = neurons[i - 1].length;
 
 		return layout;
+	}
+	
+	private double[] normalizeVector(double[] vector) {
+		double sum = 0;
+		for(int i = 0; i < vector.length; i++) {
+			sum += vector[i] * vector[i];
+		}
+		double length = Math.sqrt(sum);
+		for(int i = 0; i < vector.length; i++) {
+			vector[i] = vector[i] * (1/length);
+		}
+		
+		return vector;
+	}
+	
+	private double calcError(double[] desiredOutputs) {
+		//calculate error
+		double errorSum = 0;	
+		
+		for(int o = 0; o < desiredOutputs.length; o++) {
+			errorSum += Math.pow(desiredOutputs[o]-neuronValues[neuronValues.length - 1][o], 2);
+		}
+		
+		return errorSum;
 	}
 
 }

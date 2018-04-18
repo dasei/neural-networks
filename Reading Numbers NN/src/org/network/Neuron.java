@@ -126,4 +126,8 @@ public class Neuron {
 		//Lineare Transformation zu beliebig normalverteilten Zufallszahlen
 		return Math.sqrt(standartabweichung) * x + erwartungswert;
 	}
+	
+	public int getAmountOfWeights() {
+		return weights.length;
+	}
 }

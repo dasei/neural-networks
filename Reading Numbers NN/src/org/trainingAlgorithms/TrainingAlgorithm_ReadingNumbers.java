@@ -23,6 +23,7 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 		double[][] imageData = IDXLoader.getData(CATEGORY_IMAGES);
 		double[][] labelData = IDXLoader.getData(CATEGORY_LABELS);
 		int dataAvailable = Math.min(IDXLoader.getDataAvailable(CATEGORY_IMAGES), IDXLoader.getDataAvailable(CATEGORY_LABELS)); 
+//		double[] errTable = new double[(int) Math.min(iterations, dataAvailable)];
 
 		double[] calculatedOutputs = new double[10];
 		
@@ -33,13 +34,16 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			
 			if(dataPointer >= dataAvailable) {
 				dataPointer = 0;
+//				 errTable = new double[dataAvailable];
 			}
 			
-			calculatedOutputs = net.train(imageData[dataPointer], labelData[dataPointer]);
+			//TODO Hier eventuell was ändern wenn nötig
+			calculatedOutputs = net.trainNormalized(imageData[dataPointer], labelData[dataPointer]);
+//			errTable[dataPointer] = errorSum;
 			
 			if(l % 100 == 0 || l == iterations - 1) {
 				calcError(labelData[dataPointer], calculatedOutputs);
-				gui.updateTrainingProgress(l, iterations, errorSum, "read number" , getIndexOfMaxNumber(labelData[dataPointer]) + " as", String.valueOf(outputtedNumber));
+				gui.updateTrainingProgress(l, iterations + 1, errorSum, "read number" , getIndexOfMaxNumber(labelData[dataPointer]) + " as", String.valueOf(outputtedNumber));
 			}
 			
 			
@@ -60,6 +64,46 @@ public class TrainingAlgorithm_ReadingNumbers implements TrainingAlgorithm {
 			}
 			
 		}
+		
+//		gui.updateTrainingProgress(0, 0, 0, "Searching for highest error","","");
+//		//Get the worst percent of error value indices
+//		int[] worstPercent = new int[(int) (Math.min(dataAvailable, iterations) * 0.01)];
+//		
+//		//Fill array with invalid values
+//		for(int i = 0; i < worstPercent.length; i++) {
+//			worstPercent[i] = -1;
+//		}
+//		
+//		//Fill array with valid values
+//		for(int i = 0; i < Math.min(dataAvailable, iterations); i++) {
+//			double currError = errTable[i];
+//			for(int z = 0; z < worstPercent.length; z++) {
+//				if(worstPercent[z] == -1 || currError > errTable[worstPercent[z]]) {
+//					int oldEntry = worstPercent[z];
+//					worstPercent[z] = i;
+//					for(int j = 0; j < worstPercent.length; j++) {
+//						if(worstPercent[j] == -1) {
+//							worstPercent[j] = oldEntry;
+//							break;
+//						}
+//					}
+//					break;
+//				}
+//			}
+//		}
+//		
+//		//Train the worst data a hundred times
+//		for(int i = 0; i < worstPercent.length; i++) {
+//			int currentData = worstPercent[i];
+//			double formerError = errTable[currentData];
+//			double currentError = formerError;
+//			for(int j = 0; j < 100; j++) {
+//				calculatedOutputs = net.train(imageData[currentData], labelData[currentData]);
+//				calcError(labelData[currentData], calculatedOutputs);
+//				currentError = errorSum;
+//				gui.updateTrainingProgress(i, worstPercent.length, currentError, "Reducing error", "of Data", String.valueOf(currentData));
+//			}
+//		}
 		
 	}
 		

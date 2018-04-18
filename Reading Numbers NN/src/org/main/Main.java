@@ -24,7 +24,6 @@ public class Main {
 		
 		IDXLoader.startLoadingData("t10k-images.idx3-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_IMAGES_TEST, 10000, 28 * 28);
 		IDXLoader.startLoadingData("t10k-labels.idx1-ubyte", TrainingAlgorithm_ReadingNumbers.CATEGORY_LABELS_TEST, 10000, 10);
-
 	}
 	
 
@@ -52,7 +51,7 @@ public class Main {
 			net.setActivationFunction(new Linear());
 
 			int d1, d2;
-			int iterations = 100;
+			int iterations = 50000;
 			double[][] inputs = new double[iterations][2];
 			double[][] outputs = new double[iterations][1];
 
